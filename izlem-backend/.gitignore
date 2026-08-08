@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.*
+
+# Logs & Debug
+*.log
+npm-debug.log*
+
+# Prisma
+/generated/prisma
+

@@ -1,0 +1,372 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  GUIDE_TEACHER
+  PARENT
+}
+
+enum IncidentStatus {
+  DISPATCHED
+  RECEIVED
+  UNACCOUNTED
+  RESOLVED
+}
+
+enum CategoryGroup {
+  DISCIPLINE
+  PRAISE
+}
+
+enum ActionType {
+  LOG_WARNING
+  NOTIFY_PARENT
+  REQUIRE_ADMIN_MEETING
+  ASSIGN_DETENTION
+  POSITIVE_REWARD
+}
+
+enum NotificationChannel {
+  EMAIL
+  WEBSOCKET
+}
+
+enum ResolutionOutcome {
+  SUCCESSFUL
+  DISMISSED
+  LOW_ENGAGEMENT
+  ESCALATED
+  NO_SHOW
+}
+
+// ==================== MODELS ====================
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users                User[]
+  students             Student[]
+  incidents            Incident[]
+  infractionCategories InfractionCategory[]
+  disciplineRules      DisciplineRule[]
+  semesters            SemesterConfig[]
+  triggeredActions     TriggeredAction[]
+  notifications        Notification[]
+  chatConversations    ChatConversation[]
+
+  @@map("schools")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(TEACHER)
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Parent → Student link (only for PARENT role)
+  students  Student[] @relation("ParentStudent")
+
+  // Relations
+  createdIncidents  Incident[] @relation("CreatedByUser")
+  receivedIncidents Incident[] @relation("ReceivedByUser")
+  notifications     Notification[]
+  resolvedActions   TriggeredAction[] @relation("ResolvedByUser")
+
+  // Chat relations
+  chatConversationsAsTeacher ChatConversation[] @relation("ChatTeacher")
+  chatConversationsAsParent  ChatConversation[] @relation("ChatParent")
+  chatMessagesSent           ChatMessage[]      @relation("ChatMessageSender")
+
+  @@index([schoolId])
+  @@index([email])
+  @@map("users")
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  studentNo String
+  firstName String
+  lastName  String
+  grade     String?
+  section   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Relations
+  incidents        Incident[]
+  parentUsers      User[]             @relation("ParentStudent")
+  triggeredActions TriggeredAction[]
+
+  @@unique([schoolId, studentNo])
+  @@index([schoolId])
+  @@map("students")
+}
+
+model InfractionCategory {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  group       CategoryGroup
+  points      Int           @default(0)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Relations
+  disciplineRules DisciplineRule[]
+  incidents       Incident[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("infraction_categories")
+}
+
+model DisciplineRule {
+  id          String     @id @default(cuid())
+  description String
+  actionType  ActionType
+  threshold   Int
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Relations
+  categoryId       String
+  category         InfractionCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  triggeredActions TriggeredAction[]
+
+  @@index([schoolId])
+  @@index([categoryId])
+  @@map("discipline_rules")
+}
+
+model SemesterConfig {
+  id        String   @id @default(cuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId])
+  @@map("semester_configs")
+}
+
+enum ActionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+// ... (existing enums)
+
+model TriggeredAction {
+  id          String     @id @default(cuid())
+  actionType  ActionType
+  status      ActionStatus @default(PENDING)
+  count       Int        // incident count that triggered this
+  createdAt   DateTime   @default(now())
+  deletedAt   DateTime?  // For Soft Delete
+
+  // Resolution fields
+  resolutionOutcome ResolutionOutcome?
+  resolutionNote    String?
+  resolvedAt        DateTime?
+  resolvedById      String?
+  resolvedBy        User?    @relation("ResolvedByUser", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  // Relations
+  studentId  String
+  student    Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  ruleId     String
+  rule       DisciplineRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  incidentId String
+  incident   Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([createdAt])
+  @@index([resolvedById])
+
+  notifications Notification[]
+
+  @@map("triggered_actions")
+}
+
+enum NotificationStatus {
+  PENDING
+  QUEUED
+  SENT
+  FAILED
+}
+
+model Notification {
+  id      String              @id @default(cuid())
+  channel NotificationChannel
+  subject String
+  message String
+  sentAt  DateTime            @default(now())
+
+  // Async tracking
+  status     NotificationStatus @default(PENDING)
+  providerId String?            // External ID from SendGrid/Twilio
+  error      String?            // Error message if failed
+  metadata   Json?              // Context for workers (retry count, template vars)
+
+  // Recipient
+  recipientId String
+  recipient   User @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Link to the action that triggered this notification
+  triggeredActionId String?
+  triggeredAction   TriggeredAction? @relation(fields: [triggeredActionId], references: [id], onDelete: SetNull)
+
+  @@index([schoolId])
+  @@index([recipientId])
+  @@index([sentAt])
+  @@index([status])
+  @@index([triggeredActionId])
+  @@map("notifications")
+}
+
+// ... 
+
+model Incident {
+  id           String         @id @default(cuid())
+  description  String?
+  status       IncidentStatus @default(DISPATCHED)
+  visibleToParent Boolean     @default(false)
+  isLessonTerminated Boolean  @default(false)
+  isClassTerminated  Boolean  @default(false)
+  dispatchedAt DateTime       @default(now())
+  receivedAt   DateTime?
+  resolvedAt   DateTime?
+  notes        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?      // For Soft Delete
+
+  // Multi-tenancy field
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Relations
+  studentId  String
+  student    Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   InfractionCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   User @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: Cascade)
+
+  receivedById String?
+  receivedBy   User? @relation("ReceivedByUser", fields: [receivedById], references: [id], onDelete: SetNull)
+
+  triggeredActions TriggeredAction[]
+
+  @@index([schoolId])
+  @@index([status])
+  @@index([dispatchedAt])
+  @@index([studentId])
+  @@index([createdById])
+  @@map("incidents")
+}
+
+// ==================== CHAT ====================
+
+model ChatConversation {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Participants (always 1 teacher + 1 parent)
+  teacherId String
+  teacher   User   @relation("ChatTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  parentId  String
+  parent    User   @relation("ChatParent", fields: [parentId], references: [id], onDelete: Cascade)
+
+  // Multi-tenancy
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  messages ChatMessage[]
+
+  @@unique([teacherId, parentId, schoolId])
+  @@index([schoolId])
+  @@index([teacherId])
+  @@index([parentId])
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  senderId String
+  sender   User   @relation("ChatMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}

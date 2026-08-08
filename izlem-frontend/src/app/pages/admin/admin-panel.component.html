@@ -1,0 +1,1005 @@
+﻿<!-- Admin Panel -->
+<div class="p-6 bg-gray-50 min-h-full">
+
+    <!-- Section Navigation Tabs -->
+    <div class="flex items-center gap-1 mb-6 bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm st-88c3eb">
+        <button (click)="adminSection.set('dashboard')"
+            class="st-07ca06"
+            [style.background]="adminSection() === 'dashboard' ? '#3b82f6' : 'transparent'"
+            [style.color]="adminSection() === 'dashboard' ? '#fff' : '#64748b'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            Dashboard
+        </button>
+        <button (click)="adminSection.set('users')"
+            class="st-07ca06"
+            [style.background]="adminSection() === 'users' ? '#3b82f6' : 'transparent'"
+            [style.color]="adminSection() === 'users' ? '#fff' : '#64748b'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Users
+        </button>
+        <button (click)="adminSection.set('categories')"
+            class="st-07ca06"
+            [style.background]="adminSection() === 'categories' ? '#3b82f6' : 'transparent'"
+            [style.color]="adminSection() === 'categories' ? '#fff' : '#64748b'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            Rules &amp; Categories
+        </button>
+        <button (click)="adminSection.set('settings')"
+            class="st-07ca06"
+            [style.background]="adminSection() === 'settings' ? '#3b82f6' : 'transparent'"
+            [style.color]="adminSection() === 'settings' ? '#fff' : '#64748b'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+        </button>
+    </div>
+
+    <!-- ==================== DASHBOARD SECTION ==================== -->
+    @if (adminSection() === 'dashboard') {
+    <div class="animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <!-- Header -->
+        <div class="flex items-start justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Intervention Dashboard</h1>
+                <p class="text-gray-500 mt-1">Analytics and performance trends for the {{ semester()?.name || 'current
+                    term' }}.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button (click)="loadAnalytics()" [disabled]="analyticsLoading()"
+                    class="p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition disabled:opacity-50">
+                    <svg class="w-5 h-5" [class.animate-spin]="analyticsLoading()" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Analytics Overview Grid -->
+        <div class="grid grid-cols-12 gap-6 mb-8">
+
+            <!-- Outcome Distribution (Doughnut) -->
+            <div class="col-span-12 lg:col-span-5 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-start justify-between mb-2">
+                    <h3 class="font-bold text-gray-900">Intervention Success Rate</h3>
+                    <div class="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg">{{ successRate()
+                        }}% Successful</div>
+                </div>
+                <p class="text-sm text-gray-400 mb-6">Distribution of resolved system actions.</p>
+
+                <div class="flex items-center justify-center gap-8 py-4">
+                    @if (analyticsLoading()) {
+                    <div class="w-48 h-48 rounded-full skeleton"></div>
+                    <div class="space-y-3 w-32">
+                        <div class="h-4 w-full skeleton"></div>
+                        <div class="h-4 w-3/4 skeleton"></div>
+                        <div class="h-4 w-1/2 skeleton"></div>
+                    </div>
+                    } @else {
+                    <!-- SVG Doughnut -->
+                    <div class="relative w-48 h-48">
+                        <svg viewBox="0 0 200 200" class="w-full h-full -rotate-90">
+                            @if (totalResolved() === 0) {
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="#f1f5f9" stroke-width="28" />
+                            } @else {
+                            @for (arc of doughnutArcs(); track arc.outcome) {
+                            <path [attr.d]="arc.path" [attr.fill]="arc.color"
+                                class="cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                                [class.opacity-40]="drilldownOutcome() && drilldownOutcome() !== arc.outcome"
+                                (click)="selectDrilldown(arc.outcome)">
+                                <title>{{ arc.label }}: {{ arc.count }} ({{ arc.percent }}%)</title>
+                            </path>
+                            }
+                            }
+                            <!-- Inner circle for doughnut look -->
+                            <circle cx="100" cy="100" r="55" fill="white" />
+                        </svg>
+                        <!-- Center Text -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center -rotate-0">
+                            <span class="text-3xl font-black text-gray-900">{{ totalResolved() }}</span>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total
+                                Resolved</span>
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="space-y-3">
+                        @for (arc of doughnutArcs(); track arc.outcome) {
+                        <div class="flex items-center gap-3 group cursor-pointer"
+                            (click)="selectDrilldown(arc.outcome)">
+                            <div class="w-2.5 h-2.5 rounded-full" [style.background]="arc.color"></div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-800 leading-none"
+                                    [class.text-blue-600]="drilldownOutcome() === arc.outcome">
+                                    {{ arc.label }}
+                                </p>
+                                <p class="text-[10px] text-gray-400 font-medium">{{ arc.count }} cases ({{ arc.percent
+                                    }}%)</p>
+                            </div>
+                        </div>
+                        }
+                        @if (totalResolved() === 0) {
+                        <p class="text-[10px] text-gray-400 italic">No data available for this term.</p>
+                        }
+                    </div>
+                    }
+                </div>
+
+                @if (drilldownOutcome()) {
+                <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <p class="text-xs text-blue-600 font-bold flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Filtering by: {{ OUTCOME_LABELS[drilldownOutcome()!] }}
+                    </p>
+                    <button (click)="clearDrilldown()"
+                        class="text-xs text-gray-400 hover:text-red-500 font-bold uppercase transition">Clear
+                        Filter</button>
+                </div>
+                }
+            </div>
+
+            <!-- Top Categories (Bar Chart) -->
+            <div class="col-span-12 lg:col-span-7 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">Most Triggered Infractions</h3>
+                <p class="text-sm text-gray-400 mb-6">Categories generating the highest volume of automated actions.</p>
+
+                <div class="space-y-5">
+                    @if (analyticsLoading()) {
+                    @for (i of [1,2,3,4,5]; track i) {
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-xs mb-1">
+                            <div class="h-3 w-24 skeleton"></div>
+                            <div class="h-3 w-16 skeleton"></div>
+                        </div>
+                        <div class="h-3 w-full bg-gray-50 rounded-full overflow-hidden">
+                            <div class="h-full skeleton" [style.width.%]="Math.random() * 40 + 40"></div>
+                        </div>
+                    </div>
+                    }
+                    } @else {
+                    @for (cat of topCategories(); track cat.categoryId; let i = $index) {
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-xs mb-1">
+                            <span class="font-bold text-gray-700">{{ cat.categoryName }}</span>
+                            <span class="font-black text-gray-900">{{ cat.count }} detections</span>
+                        </div>
+                        <div class="h-3 w-full bg-gray-50 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-1000 ease-out"
+                                [style.width.%]="getBarPercent(cat.count)"
+                                [style.background]="BAR_COLORS[i % BAR_COLORS.length]">
+                            </div>
+                        </div>
+                    </div>
+                    } @empty {
+                    <div class="py-12 flex flex-col items-center justify-center text-gray-300">
+                        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" />
+                        </svg>
+                        <p class="text-sm">No activity recorded for this semester yet.</p>
+                    </div>
+                    }
+                    }
+                </div>
+            </div>
+
+            <!-- Incident Trends (Line Chart) -->
+            <div class="col-span-12 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="font-bold text-gray-900">Semester Activity Volume</h3>
+                        <p class="text-sm text-gray-400 mt-1">Daily incident counts since term start.</p>
+                    </div>
+                    <div class="flex items-center gap-4 text-[10px] font-bold tracking-widest uppercase">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-blue-500"></div>
+                            <span class="text-gray-500">Total Incidents</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-48 w-full relative">
+                    <!-- Y-Axis Labels -->
+                    <div
+                        class="absolute left-0 top-0 bottom-5 flex flex-col justify-between text-[10px] font-black text-gray-300 pr-2 border-r border-gray-100">
+                        <span>{{ maxTrendCount() }}</span>
+                        <span>{{ Math.round(maxTrendCount() / 2) }}</span>
+                        <span>0</span>
+                    </div>
+
+                    <!-- Chart Content -->
+                    <div class="absolute inset-0 left-8">
+                        @if (analyticsLoading()) {
+                        <div class="w-full h-full skeleton opacity-50"></div>
+                        } @else if (incidentTrends().length > 1) {
+                        <svg viewBox="0 0 500 160" preserveAspectRatio="none" class="w-full h-full overflow-visible">
+                            <!-- Area under the line -->
+                            <path [attr.d]="trendAreaPath()" fill="url(#trendGradient)" opacity="0.1" />
+
+                            <!-- The actual line -->
+                            <polyline [attr.points]="trendLinePoints()" fill="none" stroke="#3b82f6" stroke-width="3"
+                                stroke-linecap="round" stroke-linejoin="round" />
+
+                            <!-- Data points -->
+                            @for (p of trendDataPoints(); track p.date) {
+                            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="6" fill="white" stroke="#3b82f6" stroke-width="2"
+                                class="cursor-pointer hover:r-8 transition-all">
+                                <title>{{ p.date }}: {{ p.count }} incidents</title>
+                            </circle>
+                            }
+
+                            <defs>
+                                <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#3b82f6" />
+                                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        } @else {
+                        <div class="h-full flex flex-col items-center justify-center text-gray-300">
+                            <p class="text-sm">Collecting trend data... (Need at least 2 days of activity)</p>
+                        </div>
+                        }
+                    </div>
+
+                    <!-- X-Axis Labels (Dates) -->
+                    <div class="absolute left-8 right-0 bottom-0 flex justify-between pt-2 border-t border-gray-100">
+                        @for (p of trendDataPoints(); track p.date; let first = $first, last = $last) {
+                        @if (first || last) {
+                        <span class="text-[10px] font-bold text-gray-400">{{ p.date | date:'MMM d' }}</span>
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Actions Table (Drilldown ready) -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-gray-900">Recent System Actions</h3>
+                    <p class="text-sm text-gray-400 mt-1">Live feed of automated interventions and their outcomes.</p>
+                </div>
+                @if (drilldownOutcome()) {
+                <span
+                    class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg flex items-center gap-2 animate-pulse">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                    Filtered View
+                </span>
+                }
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50/50">
+                            <th class="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                                Triggered Action</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                                Student</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                                Trigger Date</th>
+                            <th class="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                                Status / Outcome</th>
+                            <th class="px-6 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-widest">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        @for (action of filteredTriggeredActions(); track action.id) {
+                        <tr class="hover:bg-gray-50/80 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+                                        [ngClass]="getActionTypeBadgeClass(action.actionType)">
+                                        {{ getActionTypeIcon(action.actionType) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-900">{{
+                                            getActionTypeLabel(action.actionType) }}</p>
+                                        <p class="text-[11px] text-gray-500 font-medium">{{ action.rule?.description }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <p class="text-sm font-bold text-gray-900">{{ action.student?.firstName }} {{
+                                    action.student?.lastName }}</p>
+                                <p class="text-[11px] text-gray-500 font-medium">No: {{ action.student?.studentNo }}</p>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 font-medium">
+                                {{ action.createdAt | date:'MMM d, HH:mm' }}
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (action.status === ActionStatus.PENDING) {
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                    Pending
+                                </span>
+                                } @else if (action.status === ActionStatus.CANCELLED) {
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-50 text-gray-400 border border-gray-100 italic">
+                                    Cancelled
+                                </span>
+                                } @else {
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border"
+                                    [style.borderColor]="OUTCOME_COLORS[action.resolutionOutcome!] + '20'"
+                                    [style.backgroundColor]="OUTCOME_COLORS[action.resolutionOutcome!] + '10'"
+                                    [style.color]="OUTCOME_COLORS[action.resolutionOutcome!]">
+                                    {{ OUTCOME_LABELS[action.resolutionOutcome!] || action.resolutionOutcome }}
+                                </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                @if (action.status === ActionStatus.PENDING) {
+                                <button (click)="cancelAction(action)"
+                                    class="text-xs font-bold text-red-500 hover:text-red-700 transition uppercase tracking-widest">
+                                    Cancel
+                                </button>
+                                } @else {
+                                <button
+                                    class="text-xs font-bold text-gray-400 hover:text-blue-600 transition uppercase tracking-widest">
+                                    Details
+                                </button>
+                                }
+                            </td>
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <p class="text-gray-400 text-sm">No actions found matching your criteria.</p>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- ==================== USER MANAGEMENT SECTION ==================== -->
+    @if (adminSection() === 'users') {
+    <div>
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
+            <p class="text-gray-500">Manage staff accounts, approve registrations, and reset passwords.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <!-- Active Students -->
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Active Students</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats().activeStudents }}</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-emerald-50 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Approvals -->
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Pending Approvals</p>
+                        <p class="text-3xl font-bold mt-1" [class.text-amber-600]="stats().pendingApprovals > 0"
+                            [class.text-gray-900]="stats().pendingApprovals === 0">
+                            {{ stats().pendingApprovals }}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Incidents -->
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Critical Incidents Today</p>
+                        <p class="text-3xl font-bold mt-1" [class.text-red-600]="stats().criticalIncidents > 0"
+                            [class.text-gray-900]="stats().criticalIncidents === 0">
+                            {{ stats().criticalIncidents }}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-red-50 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="bg-white rounded-xl border border-gray-200 p-4 mb-4">
+            <div class="flex items-center gap-4">
+                <!-- Search -->
+                <div class="flex-1 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" [ngModel]="userSearch()" (ngModelChange)="userSearch.set($event)"
+                        placeholder="Search by name or email..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                </div>
+
+                <!-- Status Filter -->
+                <div class="flex gap-2">
+                    <button (click)="userStatusFilter.set('')"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition"
+                        [class.bg-blue-600]="userStatusFilter() === ''" [class.text-white]="userStatusFilter() === ''"
+                        [class.bg-gray-100]="userStatusFilter() !== ''"
+                        [class.text-gray-600]="userStatusFilter() !== ''">
+                        All
+                    </button>
+                    <button (click)="userStatusFilter.set('pending')"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition"
+                        [class.bg-amber-600]="userStatusFilter() === 'pending'"
+                        [class.text-white]="userStatusFilter() === 'pending'"
+                        [class.bg-gray-100]="userStatusFilter() !== 'pending'"
+                        [class.text-gray-600]="userStatusFilter() !== 'pending'">
+                        Pending
+                    </button>
+                    <button (click)="userStatusFilter.set('active')"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition"
+                        [class.bg-emerald-600]="userStatusFilter() === 'active'"
+                        [class.text-white]="userStatusFilter() === 'active'"
+                        [class.bg-gray-100]="userStatusFilter() !== 'active'"
+                        [class.text-gray-600]="userStatusFilter() !== 'active'">
+                        Active
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            @if (usersLoading()) {
+            <div class="flex items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span class="ml-3 text-gray-500">Loading users...</span>
+            </div>
+            } @else {
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Name</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Email</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Role</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Student Link</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Registered</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Status</th>
+                        <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @for (user of filteredUsers(); track user.id) {
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium"
+                                    [class.bg-purple-100]="user.role === 'ADMIN'"
+                                    [class.text-purple-700]="user.role === 'ADMIN'"
+                                    [class.bg-blue-100]="user.role === 'GUIDE_TEACHER'"
+                                    [class.text-blue-700]="user.role === 'GUIDE_TEACHER'"
+                                    [class.bg-emerald-100]="user.role === 'TEACHER'"
+                                    [class.text-emerald-700]="user.role === 'TEACHER'"
+                                    [class.bg-amber-100]="user.role === 'PARENT'"
+                                    [class.text-amber-700]="user.role === 'PARENT'">
+                                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                                </div>
+                                <span class="font-medium text-gray-900">{{ user.firstName }} {{ user.lastName
+                                    }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3 text-gray-600 text-sm">{{ user.email }}</td>
+                        <td class="px-5 py-3">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium"
+                                [ngClass]="getRoleBadgeClass(user.role)">
+                                {{ getRoleLabel(user.role) }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-3 text-sm text-gray-500">
+                            @if (user.student) {
+                            <span class="text-blue-600">{{ user.student.firstName }} {{ user.student.lastName
+                                }}</span>
+                            } @else {
+                            <span class="text-gray-300">—</span>
+                            }
+                        </td>
+                        <td class="px-5 py-3 text-sm text-gray-500">{{ user.createdAt | date:'mediumDate' }}</td>
+                        <td class="px-5 py-3">
+                            @if (user.isActive) {
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                Active
+                            </span>
+                            } @else {
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                Pending
+                            </span>
+                            }
+                        </td>
+                        <td class="px-5 py-3">
+                            <div class="flex items-center justify-end gap-1">
+                                @if (!user.isActive) {
+                                <button (click)="activateUser(user)" title="Activate"
+                                    class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </button>
+                                } @else {
+                                <button (click)="deactivateUser(user)" title="Deactivate"
+                                    class="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                    </svg>
+                                </button>
+                                }
+                                <button (click)="openResetModal(user)" title="Reset Password"
+                                    class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
+                                </button>
+                                <button (click)="deleteUser(user)" title="Delete"
+                                    class="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="7" class="px-5 py-12 text-center text-gray-400">
+                            No users found matching your filters.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- ==================== CATEGORY CONFIG SECTION ==================== -->
+    @if (adminSection() === 'categories') {
+    <div>
+        <!-- Breadcrumb -->
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+            <span>Configuration</span>
+            <span>/</span>
+            <span class="text-gray-900">Discipline Rules</span>
+        </div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Logic & Category Configuration</h1>
+                <p class="text-gray-500">Manage infraction categories and automated discipline logic rules.</p>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3 text-gray-500">Loading categories...</span>
+        </div>
+        }
+
+        <!-- Category Tabs & Content -->
+        @if (!loading()) {
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <!-- Infractions / Praise Tabs -->
+            <div class="flex gap-4 border-b border-gray-200 mb-6">
+                <button (click)="setTab('infractions')" class="pb-3 px-1 text-sm font-medium border-b-2 transition"
+                    [class.border-blue-600]="activeTab() === 'infractions'"
+                    [class.text-blue-600]="activeTab() === 'infractions'"
+                    [class.border-transparent]="activeTab() !== 'infractions'"
+                    [class.text-gray-500]="activeTab() !== 'infractions'">
+                    Infractions
+                </button>
+                <button (click)="setTab('praise')" class="pb-3 px-1 text-sm font-medium border-b-2 transition"
+                    [class.border-blue-600]="activeTab() === 'praise'" [class.text-blue-600]="activeTab() === 'praise'"
+                    [class.border-transparent]="activeTab() !== 'praise'"
+                    [class.text-gray-500]="activeTab() !== 'praise'">
+                    Praise
+                </button>
+            </div>
+
+            <!-- Search + Add -->
+            <div class="flex items-center gap-3 mb-4">
+                <input type="text" [ngModel]="searchQuery()" (ngModelChange)="updateSearch($event)"
+                    placeholder="Search categories..."
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <button (click)="openCategoryModal()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Category
+                </button>
+            </div>
+
+            <!-- Categories List -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Category List -->
+                <div class="space-y-2">
+                    @for (cat of filteredCategories(); track cat.id) {
+                    <button (click)="selectCategory(cat)"
+                        class="w-full text-left px-4 py-3 rounded-lg border transition"
+                        [class.border-blue-500]="selectedCategory()?.id === cat.id"
+                        [class.bg-blue-50]="selectedCategory()?.id === cat.id"
+                        [class.border-gray-200]="selectedCategory()?.id !== cat.id">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ cat.name }}</p>
+                                <p class="text-xs text-gray-500">{{ getRulesCount(cat) }} rules · {{ cat.points }}
+                                    pts</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-xs" [class.bg-emerald-100]="cat.isActive"
+                                [class.text-emerald-700]="cat.isActive" [class.bg-gray-100]="!cat.isActive"
+                                [class.text-gray-500]="!cat.isActive">
+                                {{ cat.isActive ? 'Active' : 'Disabled' }}
+                            </span>
+                        </div>
+                    </button>
+                    } @empty {
+                    <p class="text-gray-400 text-center py-8">No categories found.</p>
+                    }
+                </div>
+
+                <!-- Selected Category Rules -->
+                <div>
+                    @if (selectedCategory()) {
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-900">{{ selectedCategory()!.name }} — Rules</h3>
+                            <div class="flex gap-2">
+                                <button (click)="toggleCategoryActive()" [disabled]="isTogglingActive()"
+                                    class="px-3 py-1 text-xs rounded-lg border"
+                                    [class.text-red-600]="selectedCategory()!.isActive"
+                                    [class.text-emerald-600]="!selectedCategory()!.isActive">
+                                    {{ selectedCategory()!.isActive ? 'Disable' : 'Enable' }}
+                                </button>
+                                <button (click)="openRuleModal()"
+                                    class="px-3 py-1 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                                    + Add Rule
+                                </button>
+                            </div>
+                        </div>
+                        @for (rule of selectedRules(); track rule.id) {
+                        <div class="border border-gray-100 rounded-lg p-3 mb-2">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 rounded text-xs font-medium"
+                                    [ngClass]="getActionTypeBadgeClass(rule.actionType)">
+                                    {{ getActionTypeIcon(rule.actionType) }} {{ getActionTypeLabel(rule.actionType)
+                                    }}
+                                </span>
+                                <span class="text-xs text-gray-400">Threshold: {{ rule.threshold }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700">{{ rule.description }}</p>
+                        </div>
+                        } @empty {
+                        <p class="text-gray-400 text-sm text-center py-4">No rules configured.</p>
+                        }
+                    </div>
+                    } @else {
+                    <div class="flex items-center justify-center h-full text-gray-400">
+                        Select a category to view its rules.
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    <!-- ==================== SETTINGS SECTION ==================== -->
+    @if (adminSection() === 'settings') {
+    <div>
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
+            <p class="text-gray-500">Semester configuration and system actions feed.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+            <!-- Semester Config Card -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900">Semester Configuration</h3>
+                        <p class="text-xs text-gray-500">Define the active term for incident counting</p>
+                    </div>
+                </div>
+
+                @if (semester()) {
+                <div class="bg-indigo-50 rounded-lg p-3 mb-4">
+                    <p class="text-sm font-medium text-indigo-700">📝… Current: {{ semester()!.name }}</p>
+                    <p class="text-xs text-indigo-500 mt-0.5">{{ semester()!.startDate | date:'mediumDate' }} — {{
+                        semester()!.endDate | date:'mediumDate' }}</p>
+                </div>
+                }
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Semester Name</label>
+                        <input type="text" [ngModel]="semesterName()" (ngModelChange)="semesterName.set($event)"
+                            placeholder="e.g. 2024-2025 Fall Term"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <input type="date" [ngModel]="semesterStartDate()"
+                                (ngModelChange)="semesterStartDate.set($event)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <input type="date" [ngModel]="semesterEndDate()"
+                                (ngModelChange)="semesterEndDate.set($event)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                        </div>
+                    </div>
+                    <button (click)="saveSemester()" [disabled]="savingSemester()"
+                        class="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 text-sm font-medium">
+                        @if (savingSemester()) {
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline-block mr-2">
+                        </div>
+                        } Save Semester
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent System Actions Feed -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Recent System Actions</h3>
+                            <p class="text-xs text-gray-500">Automated rule triggers (live)</p>
+                        </div>
+                    </div>
+                    <button (click)="loadTriggeredActions()"
+                        class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                        Refresh
+                    </button>
+                </div>
+
+                @if (actionsLoading()) {
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                </div>
+                } @else if (triggeredActions().length === 0) {
+                <div class="text-center py-8 text-gray-400">
+                    <p class="text-2xl mb-2">⚡</p>
+                    <p class="text-sm">No automated actions triggered yet.</p>
+                    <p class="text-xs mt-1">Actions will appear here when thresholds are met.</p>
+                </div>
+                } @else {
+                <div class="space-y-2 max-h-[400px] overflow-y-auto">
+                    @for (action of triggeredActions(); track action.id) {
+                    <div class="border border-gray-100 rounded-lg p-3 hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-0.5 rounded text-xs font-medium"
+                                [ngClass]="getActionTypeBadgeClass(action.actionType)">
+                                {{ getActionTypeIcon(action.actionType) }} {{ getActionTypeLabel(action.actionType)
+                                }}
+                            </span>
+                            <span class="text-xs text-gray-400">{{ action.createdAt | date:'short' }}</span>
+                        </div>
+                        <p class="text-sm text-gray-800 font-medium">
+                            {{ action.student?.firstName }} {{ action.student?.lastName }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            {{ action.rule?.category?.name }} · Count: {{ action.count }} · {{
+                            action.rule?.description }}
+                        </p>
+                        <!-- Notification Statuses -->
+                        @if (action.notifications && action.notifications.length > 0) {
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            @for (notif of action.notifications; track notif.id) {
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-medium border uppercase tracking-wider"
+                                [class.bg-gray-50]="notif.status === 'PENDING'"
+                                [class.text-gray-600]="notif.status === 'PENDING'"
+                                [class.border-gray-200]="notif.status === 'PENDING'"
+                                [class.bg-blue-50]="notif.status === 'QUEUED'"
+                                [class.text-blue-600]="notif.status === 'QUEUED'"
+                                [class.border-blue-200]="notif.status === 'QUEUED'"
+                                [class.bg-emerald-50]="notif.status === 'SENT'"
+                                [class.text-emerald-600]="notif.status === 'SENT'"
+                                [class.border-emerald-200]="notif.status === 'SENT'"
+                                [class.bg-red-50]="notif.status === 'FAILED'"
+                                [class.text-red-600]="notif.status === 'FAILED'"
+                                [class.border-red-200]="notif.status === 'FAILED'">
+                                {{ notif.channel }}: {{ notif.status }}
+                            </span>
+                            }
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- ==================== RESET PASSWORD MODAL ==================== -->
+@if (showResetModal()) {
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+        <h3 class="text-lg font-bold text-gray-900 mb-1">Reset Password</h3>
+        <p class="text-sm text-gray-500 mb-4">
+            Set a temporary password for <span class="font-medium text-gray-700">{{ resetTargetUser()?.firstName }} {{
+                resetTargetUser()?.lastName }}</span>
+        </p>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+            <input type="text" [ngModel]="resetPassword()" (ngModelChange)="resetPassword.set($event)"
+                placeholder="Min. 8 characters"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            @if (resetPassword().length > 0 && resetPassword().length < 8) { <p class="text-xs text-red-500 mt-1">
+                Password must be at least 8 characters</p>
+                }
+        </div>
+        <div class="flex gap-3 justify-end">
+            <button (click)="closeResetModal()"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                Cancel
+            </button>
+            <button (click)="submitResetPassword()" [disabled]="resettingPassword() || resetPassword().length < 8"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                @if (resettingPassword()) {
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline-block mr-2"></div>
+                } Reset Password
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ==================== CATEGORY MODAL ==================== -->
+@if (showCategoryModal()) {
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">New Category</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
+                <input type="text" [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
+                    placeholder="e.g. Verbal Disruption"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Points</label>
+                <input type="number" [ngModel]="newCategoryPoints()" (ngModelChange)="newCategoryPoints.set($event)"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+        </div>
+        <div class="flex gap-3 justify-end mt-6">
+            <button (click)="closeCategoryModal()"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700">Cancel</button>
+            <button (click)="submitCategory()" [disabled]="isSubmitting()"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                Create
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ==================== RULE MODAL — UPDATED WITH ActionType DROPDOWN ==================== -->
+@if (showRuleModal()) {
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+        <h3 class="text-lg font-bold text-gray-900 mb-1">New Progressive Rule</h3>
+        <p class="text-sm text-gray-500 mb-4">Define when and what action triggers for <span
+                class="font-medium text-gray-700">{{ selectedCategory()?.name }}</span></p>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Threshold (occurrence #)</label>
+                <input type="number" min="1" [ngModel]="newRuleThreshold()"
+                    (ngModelChange)="newRuleThreshold.set($event)"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <p class="text-xs text-gray-400 mt-1">The rule triggers on the Nth incident in the current semester.</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <input type="text" [ngModel]="newRuleDescription()" (ngModelChange)="newRuleDescription.set($event)"
+                    placeholder="e.g. 3rd late — verbal warning issued"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
+                <select [ngModel]="newRuleActionType()" (ngModelChange)="newRuleActionType.set($event)"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    @for (opt of actionTypeOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="flex gap-3 justify-end mt-6">
+            <button (click)="closeRuleModal()"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700">Cancel</button>
+            <button (click)="submitRule()" [disabled]="isSubmitting()"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                Create Rule
+            </button>
+        </div>
+    </div>
+</div>
+}

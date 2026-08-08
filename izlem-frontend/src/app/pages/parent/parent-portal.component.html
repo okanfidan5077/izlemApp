@@ -1,0 +1,443 @@
+<!-- Parent Portal -->
+<div class="flex-1 flex flex-col min-h-screen bg-gray-50 pb-20 md:pb-0">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-4 md:px-8 py-4 md:py-5 sticky top-0 z-10">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center md:hidden">
+                    <span class="text-white font-bold text-lg">İ</span>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold text-gray-900">
+                        @if (activeView() === 'overview') { Dashboard }
+                        @else if (activeView() === 'history') { Timeline }
+                        @else { Policies }
+                    </h1>
+                    @if (profile()) {
+                    <p class="text-xs md:text-sm text-gray-500 mt-0.5">
+                        {{ profile()!.student.firstName }} {{ profile()!.student.lastName }} •
+                        Grade {{ profile()!.student.grade }}{{ profile()!.student.section }}
+                    </p>
+                    }
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span
+                    class="hidden md:inline-block px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-sm font-medium">
+                    🔒 Secure View
+                </span>
+                <!-- Student Switcher -->
+                @if (students().length > 1) {
+                <!-- Desktop Switcher -->
+                <select [ngModel]="selectedStudentId()" (ngModelChange)="switchStudent($any($event))"
+                    class="hidden md:inline-block bg-gray-100 border border-gray-200 rounded-lg text-sm px-3 py-1.5 font-medium text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @for (s of students(); track s.id) {
+                    <option [value]="s.id">{{ s.firstName }} {{ s.lastName }}</option>
+                    }
+                </select>
+                <!-- Mobile Switcher -->
+                <select [ngModel]="selectedStudentId()" (ngModelChange)="switchStudent($any($event))"
+                    class="md:hidden bg-gray-100 border-none rounded-lg text-sm px-2 py-1.5 font-medium text-gray-700">
+                    @for (s of students(); track s.id) {
+                    <option [value]="s.id">{{ s.firstName }}</option>
+                    }
+                </select>
+                }
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs (Mobile-Friendly) -->
+    <div class="bg-white border-b border-gray-200 px-4 flex md:hidden overflow-x-auto no-scrollbar">
+        <button (click)="setView('overview')"
+            class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap"
+            [ngClass]="activeView() === 'overview' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'">
+            Overview
+        </button>
+        <button (click)="setView('history')"
+            class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap"
+            [ngClass]="activeView() === 'history' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'">
+            History
+        </button>
+        <button (click)="setView('rules')"
+            class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap"
+            [ngClass]="activeView() === 'rules' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'">
+            Rules
+        </button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <main class="flex-1 overflow-y-auto">
+        <!-- Loading State -->
+        @if (loading()) {
+        <div class="flex flex-col items-center justify-center py-20">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
+            <span class="text-gray-500">Loading your child's data...</span>
+        </div>
+        }
+
+        <!-- Active Flags (Global Alert) -->
+        @if (!loading() && profile()?.triggeredActions) {
+        @for (action of profile()!.triggeredActions; track action.id) {
+        @if (action.status === 'PENDING') {
+        <div class="mx-4 md:mx-8 mt-4 md:mt-6">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-xl">
+                    ⚠️
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-amber-900">Active Alert: {{ action.actionType }}</h4>
+                    <p class="text-sm text-amber-800 mt-1">{{ action.description }}</p>
+                    <div class="mt-2 text-xs font-medium text-amber-700 uppercase tracking-wider">
+                        Triggered on {{ formatDate(action.createdAt) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+        }
+        }
+
+        <!-- Error State -->
+        @if (error()) {
+        <div class="p-4 md:p-8">
+            <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center max-w-md mx-auto">
+                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-red-700 mb-1">Access Error</h3>
+                <p class="text-red-600 text-sm">{{ error() }}</p>
+            </div>
+        </div>
+        }
+
+        <!-- ===================== OVERVIEW VIEW ===================== -->
+        @if (!loading() && !error() && activeView() === 'overview' && profile()) {
+        <div class="p-4 md:p-8 space-y-6">
+
+            <!-- Student Profile Card (Desktop hidden, simplified) -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 flex items-center gap-4 md:gap-6">
+                <div
+                    class="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xl md:text-2xl text-white font-bold shadow-lg shadow-blue-200">
+                    {{ profile()!.student.firstName.charAt(0) }}{{ profile()!.student.lastName.charAt(0) }}
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-base md:text-lg font-bold text-gray-900 leading-tight">
+                        {{ profile()!.student.firstName }} {{ profile()!.student.lastName }}
+                    </h2>
+                    <div class="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                        <span>{{ profile()!.student.studentNo }}</span>
+                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                        <span>{{ profile()!.semesterName }}</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-[10px] md:text-xs text-gray-400 uppercase font-medium">Standing</div>
+                    <div class="text-2xl md:text-3xl font-bold mt-0.5 md:mt-1" [ngClass]="getScoreClass()">
+                        {{ behaviorScore() }}<span class="text-gray-300 text-sm md:text-lg font-normal">/100</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Behavioral Snapshot Section -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 md:p-6">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    Behavioral Snapshot
+                </h3>
+
+                <div class="space-y-6">
+                    <!-- Progress Bar (Praise vs Discipline) -->
+                    <div>
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-sm font-semibold text-gray-700">Positive Standing</span>
+                            <span class="text-2xl font-bold text-blue-600">{{ positivePercent() }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden flex">
+                            <div class="h-full bg-emerald-500 transition-all duration-700"
+                                [style.width.%]="positivePercent()"></div>
+                            <div class="h-full bg-red-400 transition-all duration-700"
+                                [style.width.%]="100 - positivePercent()"></div>
+                        </div>
+                        <div
+                            class="flex justify-between mt-2 text-[11px] font-medium text-gray-400 uppercase tracking-tighter">
+                            <span class="flex items-center gap-1"><span
+                                    class="w-2 h-2 rounded-full bg-emerald-500"></span> {{ totalPraises() }}
+                                Praises</span>
+                            <span class="flex items-center gap-1">{{ totalIncidents() }} Incidents <span
+                                    class="w-2 h-2 rounded-full bg-red-400"></span></span>
+                        </div>
+                    </div>
+
+                    <!-- Rule Stats Grid -->
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                            <div class="text-emerald-800 text-xs font-bold uppercase mb-1">Total Praises</div>
+                            <div class="text-2xl font-black text-emerald-600">{{ totalPraises() }}</div>
+                        </div>
+                        <div class="p-4 bg-red-50 rounded-xl border border-red-100">
+                            <div class="text-red-800 text-xs font-bold uppercase mb-1">Incidents</div>
+                            <div class="text-2xl font-black text-red-600">{{ totalIncidents() }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Achievements -->
+            @if (recentAchievements().length > 0) {
+            <div
+                class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100 p-5 md:p-6 overflow-hidden relative">
+                <div class="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+                    <svg width="120" height="120" fill="currentColor">
+                        <circle cx="60" cy="60" r="60" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-emerald-900 mb-4 flex items-center gap-2 relative z-10">
+                    🏆 Recent Recognition
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10">
+                    @for (ach of recentAchievements(); track ach.id) {
+                    <div
+                        class="bg-white/90 backdrop-blur rounded-xl p-3 md:p-4 border border-emerald-100 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-xl">⭐
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-bold text-gray-900 text-sm truncate">{{ ach.rule?.description || 'Positive
+                                Reward' }}</div>
+                            <div class="text-[10px] text-emerald-600 font-medium uppercase mt-0.5 tracking-wide">
+                                {{ formatDate(ach.createdAt) }}
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+
+            <!-- Recent Feed -->
+            <div class="bg-white rounded-2xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="font-bold text-gray-900">Recent Feed</h3>
+                    <button (click)="setView('history')"
+                        class="text-sm text-blue-600 hover:underline font-semibold flex items-center gap-1">
+                        View All <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
+                @if (recentActivity().length === 0) {
+                <div class="py-12 md:py-16 text-center">
+                    <div class="text-4xl mb-3">🍃</div>
+                    <h4 class="font-bold text-gray-700">All Clear!</h4>
+                    <p class="text-gray-400 text-sm max-w-[200px] mx-auto">Your child has no recorded incidents lately.
+                        Great standing!</p>
+                </div>
+                } @else {
+                <div class="divide-y divide-gray-50">
+                    @for (incident of recentActivity(); track incident.id) {
+                    <div class="px-5 py-4 flex items-start gap-4 hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 rounded-xl flex flex-shrink-0 items-center justify-center"
+                            [ngClass]="incident.category?.group === 'PRAISE' ? 'bg-emerald-100' : 'bg-red-50'">
+                            <span class="text-lg">{{ getCategoryIcon(incident.category?.group) }}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between gap-2">
+                                <span class="font-bold text-gray-900 text-sm truncate">{{ incident.category?.name
+                                    }}</span>
+                                <span class="text-[10px] text-gray-400 font-medium whitespace-nowrap">{{
+                                    getRelativeDate(incident.dispatchedAt) }}</span>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1 line-clamp-2 md:line-clamp-none">
+                                {{ getActionTaken(incident) }}
+                            </div>
+                            @if (incident.triggeredActions?.length) {
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                @for (ta of incident.triggeredActions; track ta.id) {
+                                <span
+                                    class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-600 border border-red-100 rounded-full text-[10px] font-bold uppercase">
+                                    ⚠️ Rule Triggered
+                                </span>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- ===================== HISTORY VIEW ===================== -->
+        @if (!loading() && !error() && activeView() === 'history') {
+        <div class="p-4 md:p-8">
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div
+                    class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 md:relative">
+                    <h3 class="font-bold text-gray-900">Education Timeline</h3>
+                    <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">{{
+                        sortedIncidents().length }} ENTRIES</span>
+                </div>
+
+                @if (sortedIncidents().length === 0) {
+                <div class="py-20 text-center">
+                    <div class="text-5xl mb-4">📜</div>
+                    <h4 class="font-bold text-gray-800 text-lg">Empty Timeline</h4>
+                    <p class="text-gray-400 text-sm max-w-xs mx-auto">No activities have been logged for this semester
+                        yet.</p>
+                </div>
+                } @else {
+                <!-- Simplified Timeline (Vertical) -->
+                <div class="p-5 space-y-6 relative">
+                    <!-- Timeline Line -->
+                    <div class="absolute left-[29px] top-6 bottom-6 w-0.5 bg-gray-100 md:left-[33px]"></div>
+
+                    @for (incident of sortedIncidents(); track incident.id; let i = $index) {
+                    <div class="relative pl-12 md:pl-16">
+                        <!-- Timeline Dot/Icon -->
+                        <div class="absolute left-0 top-0 w-10 h-10 md:w-12 md:h-12 rounded-2xl border-4 border-white shadow-sm flex items-center justify-center z-10"
+                            [ngClass]="incident.category?.group === 'PRAISE' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'">
+                            <span class="text-lg md:text-xl">{{ getCategoryIcon(incident.category?.group) }}</span>
+                        </div>
+
+                        <!-- Content Card -->
+                        <div
+                            class="bg-gray-50 rounded-2xl p-4 md:p-5 border border-transparent hover:border-gray-200 transition-all">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-1 mb-2">
+                                <div class="font-bold text-gray-900">{{ incident.category?.name }}</div>
+                                <div class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                    {{ formatDate(incident.dispatchedAt) }} • {{ formatTime(incident.dispatchedAt) }}
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 leading-relaxed italic">
+                                {{ getActionTaken(incident) }}
+                            </div>
+
+                            @if (incident.triggeredActions?.length) {
+                            <div class="mt-4 pt-4 border-t border-gray-200/50">
+                                @for (ta of incident.triggeredActions; track ta.id) {
+                                <div
+                                    class="p-3 bg-white rounded-xl border border-red-100 shadow-sm flex items-start gap-3">
+                                    <div class="text-lg">📢</div>
+                                    <div>
+                                        <div class="text-xs font-black text-red-600 uppercase tracking-tighter">Official
+                                            Notice</div>
+                                        <div class="text-xs font-bold text-gray-900 mt-1 leading-tight">{{
+                                            ta.rule?.description || ta.actionType }}</div>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- ===================== RULES VIEW (School Policies) ===================== -->
+        @if (!loading() && !error() && activeView() === 'rules') {
+        <div class="p-4 md:p-8 space-y-6">
+            <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 overflow-hidden relative">
+                <div class="absolute -right-10 -bottom-10 opacity-10">
+                    <svg width="200" height="200" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L1 21h22L12 2zm0 3.45L20.27 19H3.73L12 5.45zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-black mb-2 relative z-10">School Policies</h2>
+                <p class="text-blue-100 text-sm font-medium relative z-10">Transparency on how automated alerts are
+                    triggered at our institution.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @for (rule of rules(); track rule.id) {
+                <div class="bg-white rounded-2xl border border-gray-200 p-5 transition-transform hover:-translate-y-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-xl">
+                            {{ rule.category?.group === 'PRAISE' ? '⭐' : '📋' }}
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900">{{ rule.category?.name }} Threshold</h4>
+                            <span class="text-[10px] font-black uppercase text-gray-400 tracking-widest">{{
+                                rule.actionType }}</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <p class="text-sm font-bold text-gray-800 leading-tight">{{ rule.description }}</p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between text-xs font-bold">
+                        <span class="text-gray-400">TRIGGER COUNT</span>
+                        <span class="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg">{{ rule.threshold }}
+                            incidents</span>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <div class="bg-gray-100 rounded-2xl p-6 text-center">
+                <div class="text-2xl mb-2">🤝</div>
+                <h4 class="font-bold text-gray-800">Need clarification?</h4>
+                <p class="text-sm text-gray-500 max-w-xs mx-auto mt-2">If you have questions about these policies,
+                    please reach out to the Students Affairs office.</p>
+            </div>
+        </div>
+        }
+    </main>
+
+    <!-- Bottom Navigation Bar (Mobile) -->
+    <nav
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-between items-center z-20">
+        <button (click)="setView('overview')" class="flex flex-col items-center gap-1">
+            <div class="p-1.5 rounded-xl transition-colors"
+                [ngClass]="activeView() === 'overview' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </div>
+            <span class="text-[10px] font-bold"
+                [ngClass]="activeView() === 'overview' ? 'text-blue-600' : 'text-gray-400'">Home</span>
+        </button>
+        <button (click)="setView('history')" class="flex flex-col items-center gap-1">
+            <div class="p-1.5 rounded-xl transition-colors"
+                [ngClass]="activeView() === 'history' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <span class="text-[10px] font-bold"
+                [ngClass]="activeView() === 'history' ? 'text-blue-600' : 'text-gray-400'">History</span>
+        </button>
+        <button (click)="setView('rules')" class="flex flex-col items-center gap-1">
+            <div class="p-1.5 rounded-xl transition-colors"
+                [ngClass]="activeView() === 'rules' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <span class="text-[10px] font-bold"
+                [ngClass]="activeView() === 'rules' ? 'text-blue-600' : 'text-gray-400'">Policies</span>
+        </button>
+        <button (click)="authService.logout()" class="flex flex-col items-center gap-1">
+            <div class="p-1.5 rounded-xl text-gray-400">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+            </div>
+            <span class="text-[10px] font-bold text-gray-400">Exit</span>
+        </button>
+    </nav>
+</div>
+

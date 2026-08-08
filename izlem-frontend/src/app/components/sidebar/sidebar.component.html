@@ -1,0 +1,149 @@
+<!-- Shared Sidebar — Deep Navy Theme -->
+<aside class="w-56 min-w-[14rem] bg-[#0f172a] hidden md:flex flex-col h-screen sticky top-0 overflow-hidden">
+
+    <!-- Logo -->
+    <div class="st-ec062c">
+        <div
+            class="st-3c5b81">
+            <span class="st-6d2d1c">İ</span>
+        </div>
+        <div>
+            <div class="st-90ebdb">{{ 'nav.brand' | translate }}</div>
+            <div class="st-60c4cc">{{ 'nav.subtitle' | translate }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="st-f84edf">
+
+        <!-- Teacher Hub — TEACHER, GUIDE, ADMIN -->
+        @if (authService.canSeeTeacherHub()) {
+        <a routerLink="/teacher" routerLinkActive="sidebar-active"
+            class="st-862570">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            {{ 'nav.teacherHub' | translate }}
+        </a>
+        }
+
+        <!-- Guide HUD — GUIDE, ADMIN -->
+        @if (authService.canSeeGuideHud()) {
+        <a routerLink="/guide" routerLinkActive="sidebar-active"
+            class="st-862570">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            {{ 'nav.guideHud' | translate }}
+        </a>
+        }
+
+        <!-- Student Directory — ALL roles -->
+        <a routerLink="/students" routerLinkActive="sidebar-active"
+            class="st-862570">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            {{ 'nav.studentDirectory' | translate }}
+        </a>
+
+        <!-- Parent Portal — PARENT only -->
+        @if (authService.canSeeParentPortal()) {
+        <a routerLink="/parent" routerLinkActive="sidebar-active"
+            class="st-862570">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            {{ 'nav.parentPortal' | translate }}
+        </a>
+        }
+
+        <!-- Messages — TEACHER, GUIDE, PARENT -->
+        @if (authService.canSeeChat()) {
+        <a routerLink="/chat" routerLinkActive="sidebar-active"
+            class="st-c5d49b">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            {{ 'nav.messages' | translate }}
+            @if (chatService.unreadCount() > 0) {
+            <span class="st-ff4b74">
+                {{ chatService.unreadCount() > 99 ? '99+' : chatService.unreadCount() }}
+            </span>
+            }
+        </a>
+        }
+
+        <!-- Divider -->
+        <div class="st-69270b"></div>
+
+        <!-- Admin Panel — ADMIN only -->
+        @if (authService.canSeeAdminPanel()) {
+        <a routerLink="/admin" routerLinkActive="sidebar-active"
+            class="st-862570">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {{ 'nav.adminPanel' | translate }}
+        </a>
+        }
+    </nav>
+
+    <!-- Language Switcher Selector -->
+    <div class="st-d94117">
+        <span class="st-7a2c9b">
+            🌐 {{ 'common.language' | translate }}
+        </span>
+        <div class="st-776511">
+            <button (click)="setLanguage('tr')" 
+                [style.background]="translationService.currentLang() === 'tr' ? '#3b82f6' : 'transparent'"
+                [style.color]="translationService.currentLang() === 'tr' ? '#ffffff' : '#94a3b8'"
+                class="st-337bfd">
+                🇹🇷 TR
+            </button>
+            <button (click)="setLanguage('en')" 
+                [style.background]="translationService.currentLang() === 'en' ? '#3b82f6' : 'transparent'"
+                [style.color]="translationService.currentLang() === 'en' ? '#ffffff' : '#94a3b8'"
+                class="st-337bfd">
+                🇬🇧 EN
+            </button>
+        </div>
+    </div>
+
+    <!-- User Footer -->
+    <div class="st-06ce2f">
+        <div
+            class="st-52f608">
+            {{ authService.initials() }}
+        </div>
+        <div class="st-2af679">
+            <div
+                class="st-02dd52">
+                {{ authService.displayName() }}
+            </div>
+            <div class="st-80f219">
+                {{ authService.roleLabel() }}
+            </div>
+        </div>
+        <button (click)="authService.logout()" [title]="'common.logout' | translate"
+            class="st-96da72"
+            onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#475569'">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+    </div>
+</aside>
+

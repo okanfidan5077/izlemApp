@@ -1,0 +1,188 @@
+<!-- Student Directory -->
+<div class="p-8">
+    <!-- Header -->
+    <div class="st-7afe40">
+        <h1 class="st-762227">{{ 'students.title' | translate }}</h1>
+        <p class="st-7bc71a">{{ 'students.subtitle' | translate }}</p>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div
+        class="st-07fb8a">
+        <!-- Search -->
+        <div class="st-939b05">
+            <svg class="st-e2031a"
+                width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)"
+                [placeholder]="'students.searchPlaceholder' | translate"
+                class="st-b5733f" />
+        </div>
+        <!-- Grade Filter -->
+        <div class="st-54a40d">
+            <span
+                class="st-81791e">{{ 'students.grade' | translate }}</span>
+            <select [ngModel]="selectedGrade()" (ngModelChange)="onGradeChange($event)"
+                class="st-cac0d1">
+                <option value="">All Grades</option>
+                @for (grade of grades(); track grade) {
+                <option [value]="grade">{{ grade }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="st-d65f7a">
+        @if (loading()) {
+        <div class="st-005b2f">
+            <div
+                class="st-d152d9">
+            </div>
+            <span class="st-e08419">Loading students...</span>
+        </div>
+        } @else {
+        <!-- Table Header -->
+        <table class="st-630943">
+            <thead>
+                <tr class="st-dbce94">
+                    <th
+                        class="st-f1f26d">
+                        Initials</th>
+                    <th
+                        class="st-767fc2">
+                        Full Name</th>
+                    <th
+                        class="st-d6f036">
+                        Grade</th>
+                    <th
+                        class="st-89ecc1">
+                        Total Praises</th>
+                    <th
+                        class="st-89ecc1">
+                        Total Incidents</th>
+                    <th
+                        class="st-eec7a0">
+                        Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (student of paginatedStudents(); track student.id) {
+                <tr (click)="openDrawer(student)"
+                    class="st-a3bbdb"
+                    onmouseenter="this.style.background='#f8fafc'"
+                    onmouseleave="this.style.background='transparent'">
+                    <!-- Avatar -->
+                    <td class="st-140fb6">
+                        <div [class]="'w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold ' + getAvatarColor(student)"
+                            class="st-23687d">
+                            {{ getInitials(student) }}
+                        </div>
+                    </td>
+                    <!-- Name -->
+                    <td class="st-140fb6">
+                        <div class="st-b16fcd">{{ student.firstName }} {{
+                            student.lastName }}</div>
+                        <div class="st-b0ff31">ID: #{{ student.studentNo }}
+                        </div>
+                    </td>
+                    <!-- Grade -->
+                    <td class="st-140fb6">
+                        <span
+                            class="st-3d8009">
+                            {{ student.grade }}{{ student.section ? '-' + student.section : '' }}
+                        </span>
+                    </td>
+                    <!-- Praises -->
+                    <td class="st-140fb6">
+                        <div class="st-8834a2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="st-304683">{{ student.totalPraises
+                                }}</span>
+                        </div>
+                    </td>
+                    <!-- Incidents -->
+                    <td class="st-140fb6">
+                        <div class="st-8834a2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#3b82f6">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 8v4M12 16h.01" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            <span class="st-b71418">{{ student.totalIncidents
+                                }}</span>
+                        </div>
+                    </td>
+                    <!-- Actions -->
+                    <td class="st-41293b">
+                        <button
+                            class="st-91ffaf"
+                            onclick="event.stopPropagation()">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                <circle cx="5" cy="12" r="2" />
+                                <circle cx="12" cy="12" r="2" />
+                                <circle cx="19" cy="12" r="2" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                }
+                @empty {
+                <tr>
+                    <td colspan="6" class="st-24b251">
+                        No students found matching your filters.
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div
+            class="st-9b8c60">
+            <span class="st-b45cb5">
+                Showing <strong>{{ (currentPage() - 1) * pageSize + 1 }}</strong> to
+                <strong>{{ Math.min(currentPage() * pageSize, filteredStudents().length) }}</strong> of
+                <strong>{{ filteredStudents().length }}</strong> students
+            </span>
+            <div class="st-f53f33">
+                <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
+                    class="st-899b03"
+                    [style.opacity]="currentPage() === 1 ? '0.4' : '1'">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                @for (page of pageNumbers(); track $index) {
+                @if (page === '...') {
+                <span class="st-784508">...</span>
+                } @else {
+                <button (click)="goToPage(page)"
+                    class="st-322b46"
+                    [style.background]="currentPage() === page ? '#3b82f6' : '#fff'"
+                    [style.color]="currentPage() === page ? '#fff' : '#374151'"
+                    [style.border-color]="currentPage() === page ? '#3b82f6' : '#e2e8f0'">{{ page }}</button>
+                }
+                }
+                <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+                    class="st-899b03"
+                    [style.opacity]="currentPage() === totalPages() ? '0.4' : '1'">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+<!-- Behavioral Intelligence Drawer -->
+@if (drawerOpen()) {
+<app-behavioral-drawer [profile]="selectedProfile()" [loading]="drawerLoading()" (close)="closeDrawer()" />
+}
+
+
