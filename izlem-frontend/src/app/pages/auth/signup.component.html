@@ -10,9 +10,8 @@
             </div>
             <h1 class="text-2xl font-bold text-white">İzlem</h1>
         </div>
-        <h2 class="text-xl font-bold text-white mb-1">Request Access</h2>
-        <p class="text-slate-400 text-sm max-w-xs mx-auto">Join the İzlem network and empower your educators with
-            high-impact data-driven insights.</p>
+        <h2 class="text-xl font-bold text-white mb-1">{{ 'auth.requestAccess' | translate }}</h2>
+        <p class="text-slate-400 text-sm max-w-xs mx-auto">{{ 'auth.joinNetworkSubtitle' | translate }}</p>
     </div>
 
     <!-- Signup Card -->
@@ -20,7 +19,7 @@
         <form (ngSubmit)="submit()" class="space-y-4">
             <!-- Full Name -->
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1.5">Full Name</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ 'auth.fullName' | translate }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +36,7 @@
 
             <!-- Email -->
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1.5">Official School Email</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ 'auth.officialSchoolEmail' | translate }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +53,7 @@
 
             <!-- School Name/ID -->
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1.5">School Name/ID</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ 'auth.schoolNameId' | translate }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +70,7 @@
 
             <!-- Role -->
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1.5">Role</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ 'auth.role' | translate }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,9 +81,9 @@
                     <select [ngModel]="role()" (ngModelChange)="onRoleChange($event)" name="role"
                         class="w-full pl-10 pr-4 py-3 bg-[#0f172a] border border-slate-600/50 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         required>
-                        <option value="" disabled class="text-slate-500">Select your role</option>
+                        <option value="" disabled class="text-slate-500">{{ 'auth.selectYourRole' | translate }}</option>
                         @for (r of roles; track r.value) {
-                        <option [value]="r.value" class="bg-[#0f172a]">{{ r.label }}</option>
+                        <option [value]="r.value" class="bg-[#0f172a]">{{ r.key | translate }}</option>
                         }
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -98,7 +97,7 @@
             <!-- Student ID (conditional for Parent) -->
             @if (isParent()) {
             <div class="animate-fadeIn">
-                <label class="block text-sm font-medium text-slate-300 mb-1.5">Student ID</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ 'auth.studentId' | translate }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,23 +144,23 @@
                 class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 mt-2">
                 @if (isSubmitting()) {
                 <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                Submitting...
+                {{ 'auth.submitting' | translate }}
                 } @else {
-                Request Access
+                {{ 'auth.requestAccess' | translate }}
                 }
             </button>
         </form>
 
         <!-- Login Link -->
         <p class="text-center text-slate-400 text-sm mt-5">
-            Already have an account?
-            <a routerLink="/login" class="text-blue-400 hover:text-blue-300 font-medium transition">Sign In</a>
+            {{ 'auth.alreadyHaveAccount' | translate }}
+            <a routerLink="/login" class="text-blue-400 hover:text-blue-300 font-medium transition">{{ 'auth.signIn' | translate }}</a>
         </p>
     </div>
 
     <!-- Footer -->
     <div class="mt-6 text-center text-slate-500 text-xs space-y-1">
-        <p>Privacy Policy · Terms of Service · Support</p>
-        <p>© 2024 İzlem School Management System</p>
+        <p>{{ 'auth.footerLinks' | translate }}</p>
+        <p>{{ 'auth.footerCopyright' | translate }}</p>
     </div>
 </div>

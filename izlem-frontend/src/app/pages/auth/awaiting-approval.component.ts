@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-awaiting-approval',
   standalone: true,
-  imports: [RouterLink],
+  imports: [TranslatePipe],
   template: `
     <div class="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center px-4">
       <!-- Logo -->
@@ -29,16 +30,16 @@ import { AuthService } from '../../core/services';
           </svg>
         </div>
 
-        <h2 class="text-xl font-bold text-white mb-3">Approval Pending</h2>
+        <h2 class="text-xl font-bold text-white mb-3">{{ 'auth.approvalPendingTitle' | translate }}</h2>
         <p class="text-slate-400 text-sm leading-relaxed mb-6">
-          Your account is currently pending administrator approval. You will be notified once you can access the portal.
+          {{ 'auth.approvalPendingDesc' | translate }}
         </p>
 
         <!-- Divider -->
         <div class="border-t border-slate-700/50 my-6"></div>
 
         <p class="text-slate-500 text-xs mb-4">
-          If you believe this is an error, please contact your school administrator.
+          {{ 'auth.approvalPendingContact' | translate }}
         </p>
 
         <button (click)="logout()"
@@ -46,7 +47,7 @@ import { AuthService } from '../../core/services';
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Return to Sign In
+          {{ 'auth.returnToSignIn' | translate }}
         </button>
       </div>
     </div>

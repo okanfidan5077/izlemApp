@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../core/services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslationService } from '../../core/services/translation.service';
 import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   template: `
     <div class="chat-container">
       <!-- Left Panel: Conversations -->
@@ -21,9 +23,9 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            Messages
+            {{ 'chat.messages' | translate }}
           </h2>
-          <button class="new-chat-btn" (click)="showNewChat.set(!showNewChat())" title="New Conversation">
+          <button class="new-chat-btn" (click)="showNewChat.set(!showNewChat())" [title]="'chat.newConversation' | translate">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -36,7 +38,7 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
           <input
             type="text"
             class="search-input"
-            [placeholder]="isParent() ? 'Search teachers...' : 'Search parents...'"
+            [placeholder]="isParent() ? ('chat.searchTeachers' | translate) : ('chat.searchParents' | translate)"
             (input)="onSearchPartner($event)"
             [value]="partnerSearch()"
           />
@@ -54,9 +56,9 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
             } @empty {
             <div class="empty-partners">
               @if (chatService.partners().length === 0) {
-                <span>Loading...</span>
+                <span>{{ 'chat.loading' | translate }}</span>
               } @else {
-                <span>No matches found</span>
+                <span>{{ 'chat.noMatchesFound' | translate }}</span>
               }
             </div>
             }
@@ -71,7 +73,7 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
           </svg>
           <input
             type="text"
-            placeholder="Search conversations..."
+            [placeholder]="'chat.searchConversations' | translate"
             (input)="onSearchConversation($event)"
             [value]="conversationSearch()"
           />
@@ -91,16 +93,16 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
             <div class="conv-info">
               <div class="conv-top">
                 <span class="conv-name">{{ getOtherUser(conv).firstName }} {{ getOtherUser(conv).lastName }}</span>
-                @if (conv.messages?.length) {
+                @if (conv.messages.length) {
                 <span class="conv-time">{{ formatTime(conv.messages[0].createdAt) }}</span>
                 }
               </div>
               <div class="conv-bottom">
                 <span class="conv-preview">
-                  @if (conv.messages?.length) {
+                  @if (conv.messages.length) {
                     {{ conv.messages[0].content.length > 40 ? conv.messages[0].content.substring(0, 40) + '...' : conv.messages[0].content }}
                   } @else {
-                    No messages yet
+                    {{ 'chat.noMessagesYet' | translate }}
                   }
                 </span>
                 @if (conv.unreadCount > 0) {
@@ -115,8 +117,8 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <p>No conversations yet</p>
-            <span>Start a new conversation using the + button</span>
+            <p>{{ 'chat.noConversationsYet' | translate }}</p>
+            <span>{{ 'chat.startNewConversationHint' | translate }}</span>
           </div>
           }
         </div>
@@ -160,7 +162,7 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
           </div>
           } @empty {
           <div class="empty-messages">
-            <p>No messages yet. Send the first one!</p>
+            <p>{{ 'chat.noMessagesSendFirst' | translate }}</p>
           </div>
           }
         </div>
@@ -171,7 +173,7 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
             <input
               type="text"
               class="message-input"
-              placeholder="Type a message..."
+              [placeholder]="'chat.typeMessage' | translate"
               [(ngModel)]="messageText"
               (keydown.enter)="sendMessage()"
               [disabled]="!chatService.connected()"
@@ -199,8 +201,8 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
-          <h3>Select a conversation</h3>
-          <p>Choose a conversation from the list or start a new one</p>
+          <h3>{{ 'chat.selectConversation' | translate }}</h3>
+          <p>{{ 'chat.chooseConversation' | translate }}</p>
         </div>
         }
       </div>
@@ -258,41 +260,65 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
       border: none;
       border-radius: 8px;
       padding: 8px;
+      color: #60a5fa;
       cursor: pointer;
-      color: #3b82f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.2s;
     }
 
     .new-chat-btn:hover {
       background: rgba(59, 130, 246, 0.3);
+      color: #ffffff;
       transform: scale(1.05);
     }
 
     /* ──── New Chat Panel ──── */
     .new-chat-panel {
+      padding: 12px 16px;
       border-bottom: 1px solid #e2e8f0;
-      padding: 12px;
-      background: #f8fafc;
+      background: #f1f5f9;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      background: #ffffff;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .partner-list {
       max-height: 200px;
       overflow-y: auto;
       margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .partner-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      width: 100%;
       padding: 8px 10px;
       border: none;
-      background: none;
-      cursor: pointer;
+      background: #ffffff;
       border-radius: 8px;
-      transition: background 0.15s;
+      cursor: pointer;
+      width: 100%;
       text-align: left;
+      transition: background 0.15s;
     }
 
     .partner-item:hover {
@@ -302,13 +328,14 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
     .partner-info {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 2px;
+      overflow: hidden;
     }
 
     .partner-name {
       font-size: 13px;
       font-weight: 600;
-      color: #0f172a;
+      color: #1e293b;
     }
 
     .partner-role {
@@ -317,68 +344,54 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
     }
 
     .empty-partners {
-      text-align: center;
       padding: 16px;
+      text-align: center;
+      font-size: 12px;
       color: #94a3b8;
-      font-size: 13px;
     }
 
-    /* ──── Search ──── */
+    /* ──── Search Bar ──── */
     .search-bar {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 10px 16px;
       border-bottom: 1px solid #f1f5f9;
-    }
-
-    .search-bar svg {
       color: #94a3b8;
-      flex-shrink: 0;
     }
 
-    .search-bar input, .search-input {
-      flex: 1;
+    .search-bar input {
       border: none;
       outline: none;
       font-size: 13px;
-      color: #334155;
-      background: transparent;
-    }
-
-    .search-input {
       width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 13px;
-      transition: border-color 0.2s;
+      background: transparent;
+      color: #1e293b;
     }
 
-    .search-input:focus {
-      border-color: #3b82f6;
-      outline: none;
+    .search-bar input::placeholder {
+      color: #94a3b8;
     }
 
     /* ──── Conversation List ──── */
     .conversation-list {
       flex: 1;
       overflow-y: auto;
-      padding: 4px 8px;
     }
 
     .conversation-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      width: 100%;
-      padding: 12px;
+      padding: 14px 16px;
       border: none;
-      background: none;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: background 0.15s;
+      background: transparent;
+      width: 100%;
       text-align: left;
+      cursor: pointer;
+      border-bottom: 1px solid #f8fafc;
+      transition: background 0.15s;
+      position: relative;
     }
 
     .conversation-item:hover {
@@ -387,7 +400,7 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
 
     .conversation-item.active {
       background: #eff6ff;
-      box-shadow: inset 3px 0 0 #3b82f6;
+      border-left: 3px solid #3b82f6;
     }
 
     .conv-info {
@@ -398,20 +411,24 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
     .conv-top {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 3px;
+      align-items: baseline;
+      margin-bottom: 4px;
     }
 
     .conv-name {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
-      color: #0f172a;
+      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .conv-time {
       font-size: 11px;
       color: #94a3b8;
       flex-shrink: 0;
+      margin-left: 8px;
     }
 
     .conv-bottom {
@@ -426,12 +443,11 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 200px;
     }
 
     .unread-badge {
       background: #3b82f6;
-      color: #fff;
+      color: #ffffff;
       font-size: 10px;
       font-weight: 700;
       min-width: 18px;
@@ -442,59 +458,60 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
       justify-content: center;
       padding: 0 5px;
       flex-shrink: 0;
+      margin-left: 8px;
     }
 
     /* ──── Avatar ──── */
     .avatar {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 13px;
+      color: #ffffff;
+      font-size: 14px;
       font-weight: 700;
       flex-shrink: 0;
-      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .avatar-sm {
-      width: 34px;
-      height: 34px;
-      font-size: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 13px;
     }
 
+    /* ──── Empty State ──── */
     .empty-state {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100%;
-      color: #94a3b8;
-      gap: 8px;
-      padding: 40px;
+      padding: 48px 24px;
       text-align: center;
+      color: #94a3b8;
     }
 
     .empty-state p {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       color: #64748b;
-      margin: 0;
+      margin: 12px 0 4px;
     }
 
     .empty-state span {
       font-size: 12px;
     }
 
-    /* ──── Right Panel ──── */
+    /* ──── Right Panel: Messages ──── */
     .messages-panel {
       flex: 1;
       display: flex;
       flex-direction: column;
+      background: #f8fafc;
       overflow: hidden;
-      min-width: 0;
     }
 
     .message-header {
@@ -504,57 +521,57 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
       padding: 14px 20px;
       background: #ffffff;
       border-bottom: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     }
 
     .back-btn {
       display: none;
       background: none;
       border: none;
-      cursor: pointer;
       color: #64748b;
+      cursor: pointer;
       padding: 4px;
       border-radius: 6px;
     }
 
     .back-btn:hover {
       background: #f1f5f9;
+      color: #1e293b;
     }
 
     .header-info {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 1px;
-      flex: 1;
     }
 
     .header-name {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
-      color: #0f172a;
+      color: #1e293b;
     }
 
     .header-role {
       font-size: 11px;
       color: #64748b;
+      font-weight: 500;
     }
 
     .header-status {
       display: flex;
       align-items: center;
-      gap: 6px;
     }
 
     .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #94a3b8;
+      background: #cbd5e1;
     }
 
     .status-dot.online {
-      background: #22c55e;
-      box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
     }
 
     /* ──── Messages Body ──── */
@@ -564,13 +581,12 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
       padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      gap: 12px;
     }
 
     .message-row {
       display: flex;
-      justify-content: flex-start;
+      width: 100%;
     }
 
     .message-row.own {
@@ -578,25 +594,29 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
     }
 
     .message-bubble {
-      max-width: 70%;
+      max-width: 65%;
       padding: 10px 14px;
       border-radius: 16px 16px 16px 4px;
       background: #ffffff;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-      position: relative;
+      color: #1e293b;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      border: 1px solid #f1f5f9;
     }
 
     .message-bubble.own {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: #fff;
       border-radius: 16px 16px 4px 16px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
     }
 
     .message-text {
       margin: 0;
       font-size: 13.5px;
-      line-height: 1.5;
-      word-wrap: break-word;
+      line-height: 1.45;
+      word-break: break-word;
+      white-space: pre-wrap;
     }
 
     .message-meta {
@@ -609,12 +629,12 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
 
     .message-time {
       font-size: 10px;
-      opacity: 0.6;
+      opacity: 0.65;
     }
 
     .read-status {
-      font-size: 11px;
-      opacity: 0.7;
+      font-size: 10px;
+      opacity: 0.8;
     }
 
     .empty-messages {
@@ -623,12 +643,12 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
       justify-content: center;
       height: 100%;
       color: #94a3b8;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     /* ──── Message Input Area ──── */
     .message-input-area {
-      padding: 12px 20px 16px;
+      padding: 16px 20px;
       background: #ffffff;
       border-top: 1px solid #e2e8f0;
     }
@@ -637,25 +657,26 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #f1f5f9;
-      border-radius: 24px;
-      padding: 4px 4px 4px 16px;
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      border-radius: 12px;
+      padding: 4px 6px 4px 16px;
+      transition: all 0.2s;
     }
 
     .input-wrapper:focus-within {
       border-color: #3b82f6;
+      background: #ffffff;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .message-input {
       flex: 1;
       border: none;
-      outline: none;
       background: transparent;
-      font-size: 14px;
-      color: #0f172a;
+      outline: none;
+      font-size: 13.5px;
+      color: #1e293b;
       padding: 8px 0;
     }
 
@@ -664,39 +685,40 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
     }
 
     .send-btn {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      border: none;
-      border-radius: 50%;
       width: 36px;
       height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: #3b82f6;
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: white;
       transition: all 0.2s;
       flex-shrink: 0;
     }
 
     .send-btn:hover:not(:disabled) {
+      background: #2563eb;
       transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
     }
 
     .send-btn:disabled {
-      opacity: 0.4;
+      background: #e2e8f0;
+      color: #94a3b8;
       cursor: not-allowed;
     }
 
-    /* ──── No Conversation ──── */
+    /* ──── No Conversation Selected ──── */
     .no-conversation {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 8px;
       color: #94a3b8;
-      gap: 12px;
       padding: 40px;
       text-align: center;
     }
@@ -761,6 +783,7 @@ import { ChatConversation, ChatPartner, UserRole } from '../../core/models';
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   readonly chatService = inject(ChatService);
   readonly authService = inject(AuthService);
+  readonly translationService = inject(TranslationService);
 
   @ViewChild('messagesBody') messagesBody?: ElementRef<HTMLDivElement>;
 
@@ -873,31 +896,28 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   getRoleLabel(role?: UserRole | string): string {
-    switch (role) {
-      case UserRole.TEACHER: return 'Teacher';
-      case UserRole.GUIDE_TEACHER: return 'Guide Teacher';
-      case UserRole.PARENT: return 'Parent';
-      case UserRole.ADMIN: return 'Administrator';
-      default: return '';
-    }
+    this.translationService.currentLang(); // reactive
+    if (!role) return '';
+    return this.translationService.translate('roles.' + role);
   }
 
   formatTime(date: Date | string): string {
+    const isTr = this.translationService.currentLang() === 'tr';
     const d = new Date(date);
     const now = new Date();
     const isToday = d.toDateString() === now.toDateString();
 
     if (isToday) {
-      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return d.toLocaleTimeString(isTr ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: !isTr });
     }
 
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     if (d.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return isTr ? 'Dün' : 'Yesterday';
     }
 
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return d.toLocaleDateString(isTr ? 'tr-TR' : 'en-US', { month: 'short', day: 'numeric' });
   }
 
   private scrollToBottom(): void {

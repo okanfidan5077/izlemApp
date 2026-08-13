@@ -3,14 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { AuthService, ToastService } from '../../core/services';
+import { AuthService, ToastService, TranslationService } from '../../core/services';
 import { UserRole, ApiResponse } from '../../core/models';
 import { environment } from '../../../environments/environment';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './signup.component.html'
 })
 export class SignupComponent {
@@ -18,6 +19,7 @@ export class SignupComponent {
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  readonly translationService = inject(TranslationService);
 
   fullName = signal('');
   email = signal('');
@@ -28,15 +30,15 @@ export class SignupComponent {
   isSubmitting = signal(false);
 
   // Student validation state
-  studentValid = signal<boolean | null>(null); // null = not checked, true = valid, false = invalid
+  studentValid = signal<boolean | null>(null);
   studentInfo = signal<string>('');
   validatingStudent = signal(false);
 
   readonly roles = [
-    { value: 'TEACHER', label: 'Teacher' },
-    { value: 'GUIDE_TEACHER', label: 'Guide Teacher' },
-    { value: 'ADMIN', label: 'Administrator' },
-    { value: 'PARENT', label: 'Parent / Guardian' },
+    { value: 'TEACHER', key: 'roles.TEACHER' },
+    { value: 'GUIDE_TEACHER', key: 'roles.GUIDE_TEACHER' },
+    { value: 'ADMIN', key: 'roles.ADMIN' },
+    { value: 'PARENT', key: 'roles.PARENT' },
   ];
 
   isParent(): boolean {
@@ -45,7 +47,6 @@ export class SignupComponent {
 
   onRoleChange(newRole: string): void {
     this.role.set(newRole);
-    // Reset student validation when role changes
     if (newRole !== 'PARENT') {
       this.studentId.set('');
       this.studentValid.set(null);
@@ -76,7 +77,7 @@ export class SignupComponent {
       error: () => {
         this.validatingStudent.set(false);
         this.studentValid.set(false);
-        this.studentInfo.set('Student not found. Please check the ID.');
+        this.studentInfo.set(this.translationService.translate('auth.studentNotFound'));
       }
     });
   }
@@ -90,7 +91,7 @@ export class SignupComponent {
 
   submit(): void {
     if (!this.canSubmit()) {
-      this.toastService.error('Please fill in all fields');
+      this.toastService.error(this.translationService.translate('auth.fillAllFields'));
       return;
     }
 
@@ -99,30 +100,22 @@ export class SignupComponent {
     const lastName = nameParts.slice(1).join(' ') || firstName;
 
     this.isSubmitting.set(true);
-    this.authService.clearError();
-
-    const payload: any = {
-      email: this.email(),
-      password: 'temp12345678', // Temporary password, admin will set real one
+    this.authService.register({
+      email: this.email().trim(),
+      password: this.password() || 'Temp1234!',
       firstName,
       lastName,
-      schoolId: this.schoolId(),
       role: this.role() as UserRole,
-    };
-
-    if (this.isParent()) {
-      payload.studentId = this.studentId().trim();
-    }
-
-    this.authService.register(payload).subscribe({
+      schoolId: this.schoolId().trim(),
+      studentId: this.isParent() ? this.studentId().trim() : undefined
+    }).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.toastService.success('Access request submitted! An administrator will review your enrollment.');
-        this.router.navigate(['/login']);
+        this.router.navigate(['/awaiting-approval']);
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.toastService.error(err.error?.message || 'Registration failed');
+        this.toastService.error(err.error?.message || this.translationService.translate('auth.registrationFailed'));
       }
     });
   }

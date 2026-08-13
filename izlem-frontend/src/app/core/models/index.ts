@@ -253,6 +253,7 @@ export interface RegisterRequest {
   lastName: string;
   schoolId: string;
   role?: UserRole;
+  studentId?: string;
 }
 
 export interface ForgotPasswordRequest {

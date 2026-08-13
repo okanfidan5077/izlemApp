@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ParentApiService, AuthService, ToastService, StudentSummary } from '../../core/services';
+import { ParentApiService, AuthService, ToastService, StudentSummary, TranslationService } from '../../core/services';
 import { Incident, CategoryGroup, StudentProfileResponse } from '../../core/models';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 type SortField = 'date' | 'category' | 'status';
 type SortDirection = 'asc' | 'desc';
@@ -10,7 +11,7 @@ type SortDirection = 'asc' | 'desc';
 @Component({
   selector: 'app-parent-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './parent-portal.component.html',
   styleUrl: './parent-portal.component.scss'
 })
@@ -18,6 +19,7 @@ export class ParentPortalComponent implements OnInit {
   private readonly parentApi = inject(ParentApiService);
   private readonly toastService = inject(ToastService);
   readonly authService = inject(AuthService);
+  readonly translationService = inject(TranslationService);
 
   // State
   students = signal<StudentSummary[]>([]);
@@ -36,7 +38,7 @@ export class ParentPortalComponent implements OnInit {
   // Computed: semester stats
   totalIncidents = computed(() => this.profile()?.totalIncidents ?? 0);
   totalPraises = computed(() => this.profile()?.totalPraises ?? 0);
-  semesterName = computed(() => this.profile()?.semesterName ?? 'Current Term');
+  semesterName = computed(() => this.profile()?.semesterName ?? this.translationService.translate('admin.currentTerm'));
 
   // Computed: behavior score (using profile score if available, otherwise fallback)
   behaviorScore = computed(() => this.profile()?.behaviorScore ?? 100);
@@ -96,7 +98,7 @@ export class ParentPortalComponent implements OnInit {
   private loadRules(): void {
     this.parentApi.getRules().subscribe({
       next: (rules) => this.rules.set(rules),
-      error: () => this.toastService.error('Failed to load school policies')
+      error: () => this.toastService.error(this.translationService.translate('common.error'))
     });
   }
 
@@ -109,12 +111,12 @@ export class ParentPortalComponent implements OnInit {
           this.switchStudent(students[0].id!);
         } else {
           this.loading.set(false);
-          this.error.set('No students linked to your account.');
+          this.error.set(this.translationService.translate('parent.noStudentsLinked'));
         }
       },
       error: (err: any) => {
         this.loading.set(false);
-        this.error.set('Failed to load linked students.');
+        this.error.set(this.translationService.translate('parent.failedToLoadStudents'));
       }
     });
   }
@@ -136,7 +138,7 @@ export class ParentPortalComponent implements OnInit {
       },
       error: (err: any) => {
         this.loading.set(false);
-        const msg = err.error?.message || 'Failed to load student data';
+        const msg = err.error?.message || this.translationService.translate('common.error');
         this.error.set(msg);
         this.toastService.error(msg);
       }
@@ -151,7 +153,7 @@ export class ParentPortalComponent implements OnInit {
       },
       error: (err: any) => {
         this.loading.set(false);
-        this.toastService.error('Failed to load incident history');
+        this.toastService.error(this.translationService.translate('common.error'));
       }
     });
   }
@@ -175,14 +177,16 @@ export class ParentPortalComponent implements OnInit {
   }
 
   formatDate(date: Date | string): string {
-    return new Date(date).toLocaleDateString('en-US', {
+    const isTr = this.translationService.currentLang() === 'tr';
+    return new Date(date).toLocaleDateString(isTr ? 'tr-TR' : 'en-US', {
       month: 'short', day: 'numeric', year: 'numeric'
     });
   }
 
   formatTime(date: Date | string): string {
-    return new Date(date).toLocaleTimeString('en-US', {
-      hour: '2-digit', minute: '2-digit', hour12: true
+    const isTr = this.translationService.currentLang() === 'tr';
+    return new Date(date).toLocaleTimeString(isTr ? 'tr-TR' : 'en-US', {
+      hour: '2-digit', minute: '2-digit', hour12: !isTr
     });
   }
 
@@ -194,9 +198,11 @@ export class ParentPortalComponent implements OnInit {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    const isTr = this.translationService.currentLang() === 'tr';
+
+    if (diffMins < 60) return isTr ? `${diffMins}dk önce` : `${diffMins}m ago`;
+    if (diffHours < 24) return isTr ? `${diffHours}sa önce` : `${diffHours}h ago`;
+    if (diffDays < 7) return isTr ? `${diffDays}g önce` : `${diffDays}d ago`;
     return this.formatDate(date);
   }
 
@@ -221,11 +227,12 @@ export class ParentPortalComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
+    this.translationService.currentLang(); // reactive
     switch (status) {
-      case 'RESOLVED': return 'Resolved';
-      case 'RECEIVED': return 'Acknowledged';
-      case 'DISPATCHED': return 'Pending';
-      case 'UNACCOUNTED': return 'Unaccounted';
+      case 'RESOLVED': return this.translationService.translate('guide.statusResolved');
+      case 'RECEIVED': return this.translationService.translate('guide.statusReceived');
+      case 'DISPATCHED': return this.translationService.translate('guide.statusDispatched');
+      case 'UNACCOUNTED': return this.translationService.translate('guide.statusUnaccounted');
       default: return status;
     }
   }

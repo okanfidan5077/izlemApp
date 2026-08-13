@@ -52,7 +52,7 @@
 
     <!-- Incident List -->
     <div class="space-y-3">
-        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider mb-2">TODAY</div>
+        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider mb-2">{{ 'common.today' | translate }}</div>
 
         @for (incident of filteredIncidents(); track incident.id) {
         <div
@@ -94,19 +94,21 @@
         </div>
         } @empty {
         <div class="text-center py-12 text-gray-400">
-            <p>No incidents found</p>
+            <p>{{ 'teacher.noIncidents' | translate }}</p>
         </div>
         }
     </div>
 
     <!-- FAB Button -->
     <button (click)="openDrawer()"
-        class="fixed bottom-8 right-8 w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 flex items-center justify-center transition-transform hover:scale-110">
+        class="fixed bottom-8 right-8 w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 flex items-center justify-center transition-transform hover:scale-110"
+        [title]="'teacher.logEntry' | translate">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
     </button>
-<!-- Log Entry Drawer -->
+
+    <!-- Log Entry Drawer (Side panel) -->
     @if (isDrawerOpen()) {
     <!-- Backdrop -->
     <div (click)="closeDrawer()" class="fixed inset-0 bg-black/30 z-40"></div>
@@ -120,7 +122,7 @@
                 <span class="text-xl">{{ selectedType() === 'praise' ? '🏅' : '📝' }}</span>
                 <h2 class="text-lg font-bold"
                     [ngClass]="selectedType() === 'praise' ? 'text-green-800' : 'text-gray-900'">
-                    {{ selectedType() === 'praise' ? 'New Praise Log' : 'New Discipline Log' }}
+                    {{ selectedType() === 'praise' ? ('teacher.newPraiseLog' | translate) : ('teacher.newDisciplineLog' | translate) }}
                 </h2>
             </div>
             <button (click)="closeDrawer()" class="text-gray-400 hover:text-gray-600">
@@ -135,11 +137,11 @@
             <!-- Select Students (Multi-Select) -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Select Students
+                    {{ 'teacher.selectStudent' | translate }}
                     @if (selectedStudents().length > 0) {
                     <span class="ml-1 px-2 py-0.5 text-xs rounded-full"
                         [ngClass]="selectedType() === 'praise' ? 'bg-green-100 text-green-700' : 'bg-primary-100 text-primary-700'">
-                        {{ selectedStudents().length }} selected
+                        {{ 'teacher.selectedCount' | translate:{ count: selectedStudents().length } }}
                     </span>
                     }
                 </label>
@@ -173,7 +175,7 @@
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     <input type="text" [ngModel]="studentSearchQuery()" (ngModelChange)="onStudentSearch($event)"
-                        (focus)="showSearchResults.set(true)" placeholder="Search and add students..."
+                        (focus)="showSearchResults.set(true)" [placeholder]="'teacher.searchAndAdd' | translate"
                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-primary-500 outline-none"
                         [class.focus:ring-green-500]="selectedType() === 'praise'"
                         [class.focus:border-green-500]="selectedType() === 'praise'" />
@@ -204,12 +206,12 @@
                 <button (click)="setType('discipline')" [class]="selectedType() === 'discipline' 
               ? 'flex-1 py-2 rounded-lg border-2 border-red-500 bg-red-50 text-red-600 font-medium transition-all' 
               : 'flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all'">
-                    <span class="mr-1">⚠</span> Discipline
+                    <span class="mr-1">⚠</span> {{ 'teacher.discipline' | translate }}
                 </button>
                 <button (click)="setType('praise')" [class]="selectedType() === 'praise' 
               ? 'flex-1 py-2 rounded-lg border-2 border-green-500 bg-green-50 text-green-700 font-medium transition-all' 
               : 'flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all'">
-                    <span class="mr-1">⭐</span> Praise
+                    <span class="mr-1">⭐</span> {{ 'teacher.praise' | translate }}
                 </button>
             </div>
 
@@ -218,8 +220,8 @@
             <div class="space-y-2">
                 <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
                     <div>
-                        <div class="font-medium text-red-700">Lesson Terminated</div>
-                        <div class="text-sm text-red-500">Student removed from class</div>
+                        <div class="font-medium text-red-700">{{ 'teacher.lessonTerminated' | translate }}</div>
+                        <div class="text-sm text-red-500">{{ 'teacher.lessonTerminatedDesc' | translate }}</div>
                     </div>
                     <button (click)="toggleLessonTerminated()" [class]="isLessonTerminated() 
                     ? 'w-12 h-6 bg-red-500 rounded-full relative transition' 
@@ -233,9 +235,9 @@
                 <div class="flex items-center justify-between p-3 bg-rose-50 rounded-lg border border-rose-200">
                     <div>
                         <div class="font-medium text-rose-800 flex items-center gap-1.5">
-                            <span>🚨 Class Terminated</span>
+                            <span>🚨 {{ 'teacher.classTerminated' | translate }}</span>
                         </div>
-                        <div class="text-xs text-rose-600">Entire class ended & teacher leaves (Notifies ALL parents in class)</div>
+                        <div class="text-xs text-rose-600">{{ 'teacher.classTerminatedDesc' | translate }}</div>
                     </div>
                     <button (click)="toggleClassTerminated()" [class]="isClassTerminated() 
                     ? 'w-12 h-6 bg-rose-600 rounded-full relative transition' 
@@ -250,7 +252,7 @@
 
             <!-- Category Selection -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">Category</label>
+                <label class="block text-sm font-medium text-gray-700 mb-3">{{ 'teacher.category' | translate }}</label>
                 <div class="grid grid-cols-3 gap-2">
                     @for (category of currentCategories(); track category.id) {
                     <button (click)="selectCategory(category)" [class]="selectedCategory()?.id === category.id 
@@ -263,7 +265,7 @@
                     </button>
                     } @empty {
                     <div class="col-span-3 text-center py-4 text-gray-400 text-sm">
-                        No categories available
+                        {{ 'teacher.noCategoriesAvailable' | translate }}
                     </div>
                     }
                 </div>
@@ -271,9 +273,9 @@
 
             <!-- Notes -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'teacher.notes' | translate }}</label>
                 <textarea [ngModel]="notes()" (ngModelChange)="notes.set($event)"
-                    placeholder="Add additional context..."
+                    [placeholder]="'teacher.notesPlaceholder' | translate"
                     class="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 resize-none h-24"
                     [class.focus:ring-green-500]="selectedType() === 'praise'"
                     [class.focus:border-green-500]="selectedType() === 'praise'"
@@ -293,9 +295,9 @@
                         d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
                 @if (selectedType() === 'praise') {
-                    {{ selectedStudents().length > 1 ? 'Give Praise to ' + selectedStudents().length + ' Students' : 'Give Praise' }}
+                    {{ selectedStudents().length > 1 ? ('teacher.givePraiseMultiple' | translate:{ count: selectedStudents().length }) : ('teacher.givePraise' | translate) }}
                 } @else {
-                    {{ selectedStudents().length > 1 ? 'Submit for ' + selectedStudents().length + ' Students' : 'Submit Discipline Log' }}
+                    {{ selectedStudents().length > 1 ? ('teacher.submitDisciplineMultiple' | translate:{ count: selectedStudents().length }) : ('teacher.submitDiscipline' | translate) }}
                 }
             </button>
         </div>

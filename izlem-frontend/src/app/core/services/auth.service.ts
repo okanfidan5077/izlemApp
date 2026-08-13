@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, map } from 'rxjs';
 import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole, ApiResponse } from '../models';
 import { environment } from '../../../environments/environment';
+import { TranslationService } from './translation.service';
 
 const TOKEN_KEY = 'izlem_token';
 const USER_KEY = 'izlem_user';
@@ -43,16 +44,14 @@ export class AuthService {
     return `${u.firstName.charAt(0)}${u.lastName.charAt(0)}`.toUpperCase();
   });
 
-  // Computed: user role display label
+  private readonly translationService = inject(TranslationService);
+
+  // Computed: user role display label (reactive to current language)
   readonly roleLabel = computed(() => {
     const role = this._user()?.role;
-    switch (role) {
-      case UserRole.ADMIN: return 'Administrator';
-      case UserRole.TEACHER: return 'Teacher';
-      case UserRole.GUIDE_TEACHER: return 'Guide Teacher';
-      case UserRole.PARENT: return 'Parent';
-      default: return '';
-    }
+    this.translationService.currentLang(); // trigger reactivity on language change
+    if (!role) return '';
+    return this.translationService.translate(`roles.${role}`);
   });
 
   // Computed: role-based visibility for sidebar nav links

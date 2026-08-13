@@ -2,14 +2,15 @@ import { Component, inject, OnInit, OnDestroy, signal, computed, effect } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { CategoryService, CreateCategoryRequest, CreateRuleRequest, ToastService, AuthService, AdminApiService } from '../../core/services';
+import { CategoryService, CreateCategoryRequest, CreateRuleRequest, ToastService, AuthService, AdminApiService, TranslationService } from '../../core/services';
 import { InfractionCategory, DisciplineRule, CategoryGroup, User, UserRole, ActionType, TriggeredAction, SemesterConfig, RuleTriggeredEvent, ActionStatus, DashboardStats, OutcomeStatsItem, IncidentTrendItem, TopCategoryItem } from '../../core/models';
 import { SocketService } from '../../core/services/socket.service';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './admin-panel.component.html',
   styleUrl: './admin-panel.component.scss'
 })
@@ -19,6 +20,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   private readonly adminApi = inject(AdminApiService);
   private readonly socketService = inject(SocketService);
   readonly authService = inject(AuthService);
+  readonly translationService = inject(TranslationService);
   protected readonly Math = Math;
 
   // ==================== SECTION NAV ====================
@@ -55,8 +57,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     });
   });
 
-  // ... (existing code)
-
   // User Helpers
   getRoleBadgeClass(role: UserRole): string {
     switch (role) {
@@ -69,7 +69,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   getRoleLabel(role: UserRole): string {
-    return role.replace(/_/g, ' ');
+    this.translationService.currentLang(); // reactive
+    return this.translationService.translate('roles.' + role);
   }
 
   activateUser(user: User) {
@@ -125,6 +126,16 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     }
   }
 
+  getActionTypeLabel(type: ActionType): string {
+    this.translationService.currentLang(); // reactive
+    return this.translationService.translate('actionTypes.' + type);
+  }
+
+  getOutcomeLabel(outcome: string): string {
+    this.translationService.currentLang(); // reactive
+    return this.translationService.translate('outcomes.' + outcome);
+  }
+
   selectedCategory = signal<InfractionCategory | null>(null);
   selectedRules = signal<DisciplineRule[]>([]);
   activeTab = signal<'infractions' | 'praise'>('infractions');
@@ -146,11 +157,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   newRuleActionType = signal<ActionType>(ActionType.LOG_WARNING);
   
   readonly actionTypeOptions = [
-    { value: ActionType.LOG_WARNING, label: 'Log Warning' },
-    { value: ActionType.NOTIFY_PARENT, label: 'Notify Parent' },
-    { value: ActionType.ASSIGN_DETENTION, label: 'Assign Detention' },
-    { value: ActionType.REQUIRE_ADMIN_MEETING, label: 'Require Admin Meeting' },
-    { value: ActionType.POSITIVE_REWARD, label: 'Positive Reward' },
+    { value: ActionType.LOG_WARNING, key: 'actionTypes.LOG_WARNING' },
+    { value: ActionType.NOTIFY_PARENT, key: 'actionTypes.NOTIFY_PARENT' },
+    { value: ActionType.ASSIGN_DETENTION, key: 'actionTypes.ASSIGN_DETENTION' },
+    { value: ActionType.REQUIRE_ADMIN_MEETING, key: 'actionTypes.REQUIRE_ADMIN_MEETING' },
+    { value: ActionType.POSITIVE_REWARD, key: 'actionTypes.POSITIVE_REWARD' },
   ];
 
   // Read from service signals
@@ -195,14 +206,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     NO_SHOW: '#8b5cf6',
   };
 
-  readonly OUTCOME_LABELS: Record<string, string> = {
-    SUCCESSFUL: 'Successful',
-    LOW_ENGAGEMENT: 'Low Engagement',
-    ESCALATED: 'Escalated',
-    DISMISSED: 'Dismissed',
-    NO_SHOW: 'No Show',
-  };
-
   // Bar chart color palette
   readonly BAR_COLORS = ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#ef4444', '#f97316', '#eab308'];
 
@@ -224,6 +227,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   doughnutArcs = computed(() => {
     const stats = this.outcomeStats();
     const total = stats.reduce((s, i) => s + i.count, 0);
+    this.translationService.currentLang(); // reactive
     if (total === 0) return [];
 
     const cx = 100, cy = 100, r = 80;
@@ -251,7 +255,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         path,
         color: this.OUTCOME_COLORS[item.outcome] || '#94a3b8',
         outcome: item.outcome,
-        label: this.OUTCOME_LABELS[item.outcome] || item.outcome,
+        label: this.translationService.translate('outcomes.' + item.outcome),
         count: item.count,
         percent: Math.round(percent * 100),
       });
@@ -362,7 +366,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     // Cleanup handled by signals/effects
   }
 
-  setSection(section: 'categories' | 'users' | 'settings') {
+  setSection(section: 'dashboard' | 'categories' | 'users' | 'settings') {
     this.adminSection.set(section);
   }
 
@@ -460,7 +464,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.showCategoryModal.set(false);
   }
 
-  submitCategory() { // Renamed from createCategory to match template
+  submitCategory() {
     if (!this.newCategoryName()) return;
 
     const group = this.activeTab() === 'infractions' ? CategoryGroup.DISCIPLINE : CategoryGroup.PRAISE;
@@ -512,7 +516,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.showRuleModal.set(false);
   }
 
-  submitRule() { // Renamed from createRule to match template
+  submitRule() {
     const cat = this.selectedCategory();
     if (!cat) return;
 
@@ -605,10 +609,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   // ==================== DASHBOARD & ACTIONS ====================
-  // (existing loadTriggeredActions, cancelAction...)
-
-
-
   loadTriggeredActions(): void {
     this.actionsLoading.set(true);
     this.adminApi.getTriggeredActions().subscribe({
@@ -661,10 +661,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       this.triggeredActions.update(list => [newAction, ...list]);
       this.toastService.info(`⚡ Rule triggered: ${this.getActionTypeLabel(event.actionType)} for ${event.studentName}`);
     });
-  }
-
-  getActionTypeLabel(type: ActionType): string {
-    return type.replace(/_/g, ' ');
   }
 
   // ==================== ANALYTICS ====================

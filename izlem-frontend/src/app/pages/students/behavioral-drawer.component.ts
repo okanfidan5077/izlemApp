@@ -2,13 +2,14 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StudentProfile, TriggeredActionSummary, ResolutionOutcome, ActionStatus, InfractionCategory, CategoryGroup } from '../../core/models';
-import { AuthService, CategoryService, IncidentService, ToastService } from '../../core/services';
+import { AuthService, CategoryService, IncidentService, ToastService, TranslationService } from '../../core/services';
 import { StudentService } from '../../core/services/student.service';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-behavioral-drawer',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './behavioral-drawer.component.html',
   styleUrl: './behavioral-drawer.component.scss',
 })
@@ -19,6 +20,7 @@ export class BehavioralDrawerComponent {
   @Output() profileRefresh = new EventEmitter<string>();
 
   readonly authService = inject(AuthService);
+  readonly translationService = inject(TranslationService);
   private readonly studentService = inject(StudentService);
   private readonly categoryService = inject(CategoryService);
   private readonly incidentService = inject(IncidentService);
@@ -42,18 +44,23 @@ export class BehavioralDrawerComponent {
   readonly ResolutionOutcome = ResolutionOutcome;
   readonly ActionStatus = ActionStatus;
 
-  readonly outcomeOptions: { value: ResolutionOutcome; label: string; icon: string }[] = [
-    { value: ResolutionOutcome.SUCCESSFUL, label: 'Successful', icon: '✅' },
-    { value: ResolutionOutcome.DISMISSED, label: 'Dismissed', icon: '🔕' },
-    { value: ResolutionOutcome.LOW_ENGAGEMENT, label: 'Low Engagement', icon: '📉' },
-    { value: ResolutionOutcome.ESCALATED, label: 'Escalated', icon: '⬆️' },
-    { value: ResolutionOutcome.NO_SHOW, label: 'No Show', icon: '❌' },
+  readonly outcomeOptions = [
+    { value: ResolutionOutcome.SUCCESSFUL, key: 'outcomes.SUCCESSFUL', defaultLabel: 'Successful', icon: '✅' },
+    { value: ResolutionOutcome.DISMISSED, key: 'outcomes.DISMISSED', defaultLabel: 'Dismissed', icon: '🔕' },
+    { value: ResolutionOutcome.LOW_ENGAGEMENT, key: 'outcomes.LOW_ENGAGEMENT', defaultLabel: 'Low Engagement', icon: '📉' },
+    { value: ResolutionOutcome.ESCALATED, key: 'outcomes.ESCALATED', defaultLabel: 'Escalated', icon: '⬆️' },
+    { value: ResolutionOutcome.NO_SHOW, key: 'outcomes.NO_SHOW', defaultLabel: 'No Show', icon: '❌' },
   ];
 
   // ── Pending Actions ──────────────────────────────────────────────────────
   get pendingActions(): TriggeredActionSummary[] {
     if (!this.profile?.triggeredActions) return [];
     return this.profile.triggeredActions.filter(a => a.status === ActionStatus.PENDING);
+  }
+
+  getActionTypeLabel(actionType: string): string {
+    this.translationService.currentLang(); // reactive
+    return this.translationService.translate('actionTypes.' + actionType);
   }
 
   // ── Open / Close Modal ─────────────────────────────────────────────────
@@ -125,13 +132,14 @@ export class BehavioralDrawerComponent {
       description: this.recordDescription.trim(),
     }).subscribe({
       next: () => {
-        this.toastService.success(`${this.recordType === 'PRAISE' ? 'Praise' : 'Incident'} recorded successfully`);
+        const msgKey = this.recordType === 'PRAISE' ? 'drawer.recordPraise' : 'drawer.recordIncident';
+        this.toastService.success(this.translationService.translate(msgKey));
         this.closeRecordModal();
         this.profileRefresh.emit(this.profile!.id);
         this.isSubmitting = false;
       },
       error: () => {
-        this.toastService.error('Failed to record behavior');
+        this.toastService.error(this.translationService.translate('common.error'));
         this.isSubmitting = false;
       }
     });
@@ -155,14 +163,16 @@ export class BehavioralDrawerComponent {
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} min ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    const isTr = this.translationService.currentLang() === 'tr';
+
+    if (diffMins < 1) return isTr ? 'Az önce' : 'Just now';
+    if (diffMins < 60) return isTr ? `${diffMins} dk önce` : `${diffMins} min ago`;
+    if (diffHours < 24) return isTr ? `${diffHours} saat önce` : `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays === 1) {
-      const time = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-      return `Yesterday, ${time}`;
+      const time = date.toLocaleTimeString(isTr ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+      return isTr ? `Dün, ${time}` : `Yesterday, ${time}`;
     }
-    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+    return date.toLocaleDateString(isTr ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'short' });
   }
 
   // ── Score Color ────────────────────────────────────────────────────────────
@@ -174,8 +184,9 @@ export class BehavioralDrawerComponent {
 
   // ── Outcome Label ──────────────────────────────────────────────────────────
   getOutcomeLabel(outcome: string): string {
+    this.translationService.currentLang(); // reactive
     const opt = this.outcomeOptions.find(o => o.value === outcome);
-    return opt ? `${opt.icon} ${opt.label}` : outcome;
+    const translatedText = this.translationService.translate('outcomes.' + outcome);
+    return opt ? `${opt.icon} ${translatedText}` : outcome;
   }
 }
-

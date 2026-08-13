@@ -9,7 +9,8 @@ import {
   CategoryService,
   SocketService,
   AuthService,
-  ToastService
+  ToastService,
+  TranslationService
 } from '../../core/services';
 import { 
   Incident, 
@@ -25,7 +26,7 @@ import { TranslatePipe } from '../../core/pipes/translate.pipe';
 @Component({
   selector: 'app-teacher-hub',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './teacher-hub.component.html'
 })
 export class TeacherHubComponent implements OnInit, OnDestroy {
@@ -36,6 +37,7 @@ export class TeacherHubComponent implements OnInit, OnDestroy {
   private readonly toastService = inject(ToastService);
   readonly socketService = inject(SocketService);
   readonly authService = inject(AuthService);
+  readonly translationService = inject(TranslationService);
 
   // UI State
   isDrawerOpen = signal<boolean>(false);
@@ -293,10 +295,22 @@ export class TeacherHubComponent implements OnInit, OnDestroy {
   }
 
   getStatusText(incident: Incident): string {
+    this.translationService.currentLang(); // reactive
     if (incident.category?.group === CategoryGroup.PRAISE) {
-      return 'Praise';
+      return this.translationService.translate('drawer.praise');
     }
-    return incident.status.charAt(0) + incident.status.slice(1).toLowerCase();
+    switch (incident.status) {
+      case IncidentStatus.DISPATCHED:
+        return this.translationService.translate('guide.statusDispatched');
+      case IncidentStatus.RECEIVED:
+        return this.translationService.translate('guide.statusReceived');
+      case IncidentStatus.RESOLVED:
+        return this.translationService.translate('guide.statusResolved');
+      case IncidentStatus.UNACCOUNTED:
+        return this.translationService.translate('guide.statusUnaccounted');
+      default:
+        return incident.status;
+    }
   }
 
   getCategoryIcon(category: InfractionCategory): string {

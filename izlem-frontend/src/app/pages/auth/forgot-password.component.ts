@@ -2,17 +2,19 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService, ToastService } from '../../core/services';
+import { AuthService, ToastService, TranslationService } from '../../core/services';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './forgot-password.component.html'
 })
 export class ForgotPasswordComponent {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  readonly translationService = inject(TranslationService);
 
   email = signal('');
   isSubmitting = signal(false);
@@ -20,7 +22,7 @@ export class ForgotPasswordComponent {
 
   submit(): void {
     if (!this.email()) {
-      this.toastService.error('Please enter your email address');
+      this.toastService.error(this.translationService.translate('auth.enterEmail'));
       return;
     }
 
@@ -31,13 +33,12 @@ export class ForgotPasswordComponent {
       next: () => {
         this.isSubmitting.set(false);
         this.sent.set(true);
-        this.toastService.success('If an account exists, a reset link has been sent.');
+        this.toastService.success(this.translationService.translate('auth.resetLinkSentToast'));
       },
-      error: (err) => {
+      error: () => {
         this.isSubmitting.set(false);
-        // Still show success to prevent email enumeration
         this.sent.set(true);
-        this.toastService.success('If an account exists, a reset link has been sent.');
+        this.toastService.success(this.translationService.translate('auth.resetLinkSentToast'));
       }
     });
   }

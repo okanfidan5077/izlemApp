@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { BullModule } from '@nestjs/bull';
@@ -42,11 +42,29 @@ import { GlobalExceptionFilter } from './common/filters';
     ChatModule,
 
     // Async Queues
-    BullModule.forRoot({
-      redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const redisUrl = configService.get<string>('REDIS_URL');
+        if (redisUrl) {
+          return {
+            redis: {
+              tls: redisUrl.startsWith('rediss://')
+                ? { rejectUnauthorized: false }
+                : undefined,
+            },
+            url: redisUrl,
+          };
+        }
+        return {
+          redis: {
+            host: configService.get<string>('REDIS_HOST') || 'localhost',
+            port: Number(configService.get<string>('REDIS_PORT')) || 6379,
+            password: configService.get<string>('REDIS_PASSWORD') || undefined,
+          },
+        };
       },
+      inject: [ConfigService],
     }),
   ],
   providers: [

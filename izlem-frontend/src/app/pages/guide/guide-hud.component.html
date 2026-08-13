@@ -21,8 +21,7 @@
       </div>
       <!-- Quick Add Button -->
       <button (click)="openSearchModal()"
-        class="st-ed6837"
-        class="text-white hover:opacity-90 flex items-center gap-2 transition-all">
+        class="st-ed6837 text-white hover:opacity-90 flex items-center gap-2 transition-all">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -36,7 +35,7 @@
     <!-- Total in Transit -->
     <div class="bg-white rounded-xl shadow-sm p-5 st-fbb07f">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-gray-500 text-xs font-semibold uppercase tracking-wider">Total in Transit</span>
+        <span class="text-gray-500 text-xs font-semibold uppercase tracking-wider">{{ 'guide.totalInTransit' | translate }}</span>
         <div class="w-8 h-8 rounded-lg flex items-center justify-center st-52b3e6">
           <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -44,13 +43,13 @@
         </div>
       </div>
       <div class="text-3xl font-bold st-048a90">{{ socketService.totalInTransit() }}</div>
-      <div class="text-xs text-gray-400 mt-1">Active passes currently issued</div>
+      <div class="text-xs text-gray-400 mt-1">{{ 'guide.activePasses' | translate }}</div>
     </div>
 
     <!-- Overdue -->
     <div class="bg-white rounded-xl shadow-sm p-5 st-1d91a9">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-orange-600 text-xs font-semibold uppercase tracking-wider">Overdue (&gt;10m)</span>
+        <span class="text-orange-600 text-xs font-semibold uppercase tracking-wider">{{ 'guide.overdue' | translate }} (&gt;10m)</span>
         <div class="w-8 h-8 rounded-lg flex items-center justify-center st-c7b935">
           <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -59,13 +58,13 @@
         </div>
       </div>
       <div class="text-3xl font-bold text-orange-600">{{ socketService.overdueCount() }}</div>
-      <div class="text-xs text-gray-400 mt-1">Require immediate attention</div>
+      <div class="text-xs text-gray-400 mt-1">{{ 'guide.requireAttention' | translate }}</div>
     </div>
 
     <!-- Missing/Critical -->
     <div class="bg-white rounded-xl shadow-sm p-5 st-a65690">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-red-600 text-xs font-semibold uppercase tracking-wider">Missing / Critical</span>
+        <span class="text-red-600 text-xs font-semibold uppercase tracking-wider">{{ 'guide.missingCritical' | translate }}</span>
         <div class="w-8 h-8 rounded-lg flex items-center justify-center st-84fc6a">
           <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -74,31 +73,31 @@
         </div>
       </div>
       <div class="text-3xl font-bold text-red-600">{{ socketService.criticalCount() }}</div>
-      <div class="text-xs text-gray-400 mt-1">Students unaccounted for &gt;20m</div>
+      <div class="text-xs text-gray-400 mt-1">{{ 'guide.unaccountedStudents' | translate }}</div>
     </div>
   </div>
 
   <!-- Students In Transit Section -->
   <div class="flex items-center justify-between mb-4">
-    <h2 class="st-048a90" class="text-lg font-bold">Students In Transit</h2>
+    <h2 class="st-048a90 text-lg font-bold">{{ 'guide.studentsInTransit' | translate }}</h2>
     <div class="flex items-center gap-2">
       <button (click)="setFilter('all')"
         [style]="selectedFilter() === 'all'
           ? 'background:#3b82f6; color:#fff; border:none; border-radius:10px; padding:8px 16px; font-weight:600; font-size:13px; cursor:pointer;'
           : 'background:#fff; color:#64748b; border:1px solid #e2e8f0; border-radius:10px; padding:8px 16px; font-weight:500; font-size:13px; cursor:pointer;'">
-        All
+        {{ 'guide.filterAll' | translate }}
       </button>
       <button (click)="setFilter('active')"
         [style]="selectedFilter() === 'active'
           ? 'background:#3b82f6; color:#fff; border:none; border-radius:10px; padding:8px 16px; font-weight:600; font-size:13px; cursor:pointer;'
           : 'background:#fff; color:#64748b; border:1px solid #e2e8f0; border-radius:10px; padding:8px 16px; font-weight:500; font-size:13px; cursor:pointer;'">
-        Active
+        {{ 'guide.filterActive' | translate }}
       </button>
       <button (click)="setFilter('critical')"
         [style]="selectedFilter() === 'critical'
           ? 'background:#ef4444; color:#fff; border:none; border-radius:10px; padding:8px 16px; font-weight:600; font-size:13px; cursor:pointer;'
           : 'background:#fff; color:#64748b; border:1px solid #e2e8f0; border-radius:10px; padding:8px 16px; font-weight:500; font-size:13px; cursor:pointer;'">
-        Critical
+        {{ 'guide.filterCritical' | translate }}
       </button>
       <button (click)="toggleSort()"
         class="st-19da3c">
@@ -106,7 +105,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
         </svg>
-        Sort
+        {{ 'common.sort' | translate }}
       </button>
     </div>
   </div>
@@ -118,7 +117,7 @@
     <div class="st-e0f20a">
       <div class="st-492ec0">
         <span class="st-dd7e28">🚩</span>
-        <span class="st-5d548b">Flagged Students</span>
+        <span class="st-5d548b">{{ 'guide.flaggedStudents' | translate }}</span>
         <span
           class="st-4928a9">{{
           flaggedStudents().length }}</span>
@@ -136,7 +135,7 @@
           <div>
             <div class="st-1336e6">{{ student.firstName }} {{ student.lastName }}
             </div>
-            <div class="st-d08c62">Grade {{ student.grade }}{{ student.section ? '-' +
+            <div class="st-d08c62">{{ 'students.grade' | translate }} {{ student.grade }}{{ student.section ? '-' +
               student.section : '' }}</div>
           </div>
         </div>
@@ -151,7 +150,7 @@
         <button (click)="openStudentDrawer(student.id)"
           class="st-816c49"
           onmouseenter="this.style.background='#d97706'" onmouseleave="this.style.background='#f59e0b'">
-          Open Profile & Resolve
+          {{ 'guide.openProfileResolve' | translate }}
         </button>
       </div>
       }
@@ -179,7 +178,7 @@
               {{ incident.student?.firstName }} {{ incident.student?.lastName }}
             </div>
             <div class="text-xs text-gray-400">
-              {{ incident.student?.grade || '10th' }} Grade &#8226; #{{ incident.student?.studentNo }}
+              {{ 'students.grade' | translate }} {{ incident.student?.grade || '10' }} &#8226; #{{ incident.student?.studentNo }}
             </div>
           </div>
         </div>
@@ -192,12 +191,12 @@
       <!-- From / To -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="st-dd86c8">
-          <span class="text-gray-400 text-[10px] font-semibold uppercase tracking-wider">From</span>
-          <div class="text-sm font-medium st-048a90">{{ incident.category?.name || 'Classroom' }}</div>
+          <span class="text-gray-400 text-[10px] font-semibold uppercase tracking-wider">{{ 'common.from' | translate }}</span>
+          <div class="text-sm font-medium st-048a90">{{ incident.category?.name || ('common.classroom' | translate) }}</div>
         </div>
         <div class="st-dd86c8">
-          <span class="text-gray-400 text-[10px] font-semibold uppercase tracking-wider">To</span>
-          <div class="text-sm font-medium st-048a90">Main Office</div>
+          <span class="text-gray-400 text-[10px] font-semibold uppercase tracking-wider">{{ 'common.to' | translate }}</span>
+          <div class="text-sm font-medium st-048a90">{{ 'common.mainOffice' | translate }}</div>
         </div>
       </div>
 
@@ -229,21 +228,19 @@
       @if (incident.status === 'DISPATCHED') {
       <div class="flex gap-2">
         <button (click)="confirmArrival(incident)" [disabled]="isConfirming(incident.id)"
-          class="st-4fd6a6"
-          class="hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+          class="st-4fd6a6 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
           @if (isConfirming(incident.id)) {
           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          Confirming...
+          {{ 'guide.confirming' | translate }}
           } @else {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
-          Confirm Arrival
+          {{ 'guide.confirmArrival' | translate }}
           }
         </button>
         <button
-          class="st-cc5e8c"
-          class="hover:bg-gray-100 transition-all">
+          class="st-cc5e8c hover:bg-gray-100 transition-all">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
@@ -255,31 +252,29 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
         </svg>
-        <span class="font-semibold text-sm">Student arrived safely</span>
+        <span class="font-semibold text-sm">{{ 'guide.studentArrivedSafely' | translate }}</span>
       </div>
       } @else if (incident.status === 'UNACCOUNTED') {
       <div class="flex gap-2">
         <button (click)="resolveIncident(incident)" [disabled]="isResolving(incident.id)"
-          class="st-f184ae"
-          class="hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+          class="st-f184ae hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
           @if (isResolving(incident.id)) {
           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          Resolving...
+          {{ 'guide.resolving' | translate }}
           } @else {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Resolve / Found
+          {{ 'guide.resolveFound' | translate }}
           }
         </button>
         <button (click)="confirmArrival(incident)" [disabled]="isConfirming(incident.id)"
-          class="st-a7a33a"
-          class="hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+          class="st-a7a33a hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
           @if (isConfirming(incident.id)) {
           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
           } @else {
-          Confirm
+          {{ 'common.confirm' | translate }}
           }
         </button>
       </div>
@@ -289,7 +284,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span class="font-medium text-sm">Situation Resolved</span>
+        <span class="font-medium text-sm">{{ 'guide.situationResolved' | translate }}</span>
       </div>
       }
     </div>
@@ -301,8 +296,8 @@
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
-      <p class="text-base font-semibold text-gray-500">No active incidents</p>
-      <p class="text-sm text-gray-400 mt-1">All students are accounted for</p>
+      <p class="text-base font-semibold text-gray-500">{{ 'guide.noActiveIncidents' | translate }}</p>
+      <p class="text-sm text-gray-400 mt-1">{{ 'guide.allAccountedFor' | translate }}</p>
     </div>
     }
   </div>
@@ -324,7 +319,7 @@
     <!-- Modal Header -->
     <div
       class="st-59ea46">
-      <h3 class="st-5a2ede">Quick Add Incident</h3>
+      <h3 class="st-5a2ede">{{ 'guide.quickAddTitle' | translate }}</h3>
       <button (click)="closeSearchModal()"
         class="st-ca4c4e">
         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,7 +337,7 @@
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input type="text" [value]="searchQuery()" (input)="onSearchInput($event)"
-          placeholder="Search student by name or ID..." autofocus
+          [placeholder]="'guide.searchStudentPlaceholder' | translate" autofocus
           class="st-2f74e9"
           onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
       </div>
@@ -354,7 +349,7 @@
           <div
             class="st-1f0233">
           </div>
-          <div class="st-b84c7d">Searching...</div>
+          <div class="st-b84c7d">{{ 'guide.searching' | translate }}</div>
         </div>
         } @else if (searchResults().length > 0) {
         <div class="st-6cbc10">
@@ -369,7 +364,7 @@
             <div class="st-d5e8c5">
               <div class="st-aa5131">{{ student.firstName }} {{ student.lastName
                 }}</div>
-              <div class="st-ad6638">Grade {{ student.grade }}{{ student.section ? '-' +
+              <div class="st-ad6638">{{ 'students.grade' | translate }} {{ student.grade }}{{ student.section ? '-' +
                 student.section : '' }} · #{{ student.studentNo }}</div>
             </div>
             <svg width="18" height="18" fill="none" stroke="#cbd5e1" viewBox="0 0 24 24">
@@ -381,11 +376,11 @@
         } @else if (searchQuery().length >= 2) {
         <div class="st-69e66c">
           <div class="st-0b7813">🔍</div>
-          <div class="st-b84c7d">No students found matching "{{ searchQuery() }}"</div>
+          <div class="st-b84c7d">{{ 'guide.noStudentsFoundMatching' | translate:{ query: searchQuery() } }}</div>
         </div>
         } @else {
         <div class="st-4e6b21">
-          <div class="st-b84c7d">Type at least 2 characters to search</div>
+          <div class="st-b84c7d">{{ 'guide.typeMinChars' | translate }}</div>
         </div>
         }
       </div>
@@ -393,4 +388,3 @@
   </div>
 </div>
 }
-

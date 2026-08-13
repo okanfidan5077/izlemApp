@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { SocketService, IncidentService, AuthService, ToastService, StudentService } from '../../core/services';
+import { SocketService, IncidentService, AuthService, ToastService, StudentService, TranslationService } from '../../core/services';
 import { Incident, IncidentStatus, FlaggedStudent, StudentProfile, Student } from '../../core/models';
 import { BehavioralDrawerComponent } from '../students/behavioral-drawer.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -12,7 +12,7 @@ import { TranslatePipe } from '../../core/pipes/translate.pipe';
 @Component({
   selector: 'app-guide-hud',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BehavioralDrawerComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, BehavioralDrawerComponent, TranslatePipe],
   templateUrl: './guide-hud.component.html',
   styleUrl: './guide-hud.component.scss',
   styles: [`
@@ -56,6 +56,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
   readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly studentService = inject(StudentService);
+  readonly translationService = inject(TranslationService);
 
   // Timer for live updates
   private timerInterval: any;
@@ -138,7 +139,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
 
     // Load initial incidents from API (today only)
     this.incidentService.getIncidents().subscribe({
-      error: (err) => this.toastService.error('Failed to load incidents')
+      error: (err) => this.toastService.error(this.translationService.translate('common.error'))
     });
 
     // Load flagged students
@@ -194,7 +195,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.drawerLoading.set(false);
-        this.toastService.error('Failed to load student profile');
+        this.toastService.error(this.translationService.translate('common.error'));
       },
     });
   }
@@ -266,7 +267,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
 
     this.incidentService.receiveIncident(incident.id).subscribe({
       next: () => {
-        this.toastService.success(`Student arrival confirmed for ${incident.student?.firstName || 'student'}`);
+        this.toastService.success(this.translationService.translate('guide.studentArrivedSafely'));
         // Remove from confirming set
         this.confirmingIds.update(ids => {
           const newIds = new Set(ids);
@@ -277,7 +278,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
       error: (err) => {
         // Rollback optimistic update on error
         this.socketService.updateIncidentStatus(incident.id, IncidentStatus.DISPATCHED);
-        this.toastService.error('Failed to confirm arrival');
+        this.toastService.error(this.translationService.translate('common.error'));
         // Remove from confirming set
         this.confirmingIds.update(ids => {
           const newIds = new Set(ids);
@@ -304,7 +305,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
 
     this.incidentService.resolveIncident(incident.id).subscribe({
       next: () => {
-        this.toastService.success(`Incident resolved for ${incident.student?.firstName || 'student'}`);
+        this.toastService.success(this.translationService.translate('guide.situationResolved'));
         this.resolvingIds.update(ids => {
           const newIds = new Set(ids);
           newIds.delete(incident.id);
@@ -314,7 +315,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
       error: (err) => {
         // Rollback optimistic update on error
         this.socketService.updateIncidentStatus(incident.id, IncidentStatus.UNACCOUNTED);
-        this.toastService.error('Failed to resolve incident');
+        this.toastService.error(this.translationService.translate('common.error'));
         this.resolvingIds.update(ids => {
           const newIds = new Set(ids);
           newIds.delete(incident.id);
@@ -338,9 +339,6 @@ export class GuideHudComponent implements OnInit, OnDestroy {
   }
 
   // Get timer display string (MM:SS format)
-  // For RECEIVED incidents: static duration dispatch → received
-  // For RESOLVED incidents: frozen timer at resolvedAt
-  // For active incidents: live countdown
   getTimerDisplay(incident: Incident): string {
     if (incident.status === IncidentStatus.RECEIVED && incident.receivedAt) {
       const totalSeconds = Math.floor(
@@ -367,7 +365,7 @@ export class GuideHudComponent implements OnInit, OnDestroy {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  // Get status class for incident card (uses inline style for clean border-left)
+  // Get status class for incident card
   getStatusClass(incident: Incident): Record<string, boolean> {
     const minutes = this.getMinutesSince(incident.dispatchedAt);
 
@@ -414,24 +412,26 @@ export class GuideHudComponent implements OnInit, OnDestroy {
 
   // Get status badge
   getStatusBadge(incident: Incident): { text: string; class: string } {
+    this.translationService.currentLang(); // reactive
+    const isTr = this.translationService.currentLang() === 'tr';
     const minutes = this.getMinutesSince(incident.dispatchedAt);
 
     if (incident.status === IncidentStatus.UNACCOUNTED) {
-      return { text: 'CRITICAL', class: 'bg-red-600 text-white' };
+      return { text: isTr ? 'KRİTİK' : 'CRITICAL', class: 'bg-red-600 text-white' };
     }
     if (incident.status === IncidentStatus.RESOLVED) {
-      return { text: 'RESOLVED', class: 'bg-slate-500 text-white' };
+      return { text: isTr ? 'ÇÖZÜMLENDİ' : 'RESOLVED', class: 'bg-slate-500 text-white' };
     }
     if (incident.status === IncidentStatus.RECEIVED) {
-      return { text: 'COMPLETED', class: 'bg-green-600 text-white' };
+      return { text: isTr ? 'TAMAMLANDI' : 'COMPLETED', class: 'bg-green-600 text-white' };
     }
     if (minutes > 15) {
-      return { text: 'CRITICAL', class: 'bg-red-600 text-white' };
+      return { text: isTr ? 'KRİTİK' : 'CRITICAL', class: 'bg-red-600 text-white' };
     }
     if (minutes > 10) {
-      return { text: 'WARNING', class: 'bg-orange-500 text-white' };
+      return { text: isTr ? 'UYARI' : 'WARNING', class: 'bg-orange-500 text-white' };
     }
-    return { text: 'ACTIVE', class: 'bg-blue-600 text-white' };
+    return { text: isTr ? 'AKTİF' : 'ACTIVE', class: 'bg-blue-600 text-white' };
   }
 
   // Get timer class based on status
@@ -456,30 +456,32 @@ export class GuideHudComponent implements OnInit, OnDestroy {
 
   // Get timer suffix
   getTimerSuffix(incident: Incident): string {
+    const isTr = this.translationService.currentLang() === 'tr';
     if (incident.status === IncidentStatus.RECEIVED) {
-      return 'Arrived in';
+      return isTr ? 'Varış süresi' : 'Arrived in';
     }
     if (incident.status === IncidentStatus.RESOLVED) {
-      return 'Resolved after';
+      return isTr ? 'Çözüm süresi' : 'Resolved after';
     }
     
     const minutes = this.getMinutesSince(incident.dispatchedAt);
     
     if (minutes > 15) {
-      return `Over limit (+${minutes - 15}m)`;
+      return isTr ? `Limit aşıldı (+${minutes - 15}dk)` : `Over limit (+${minutes - 15}m)`;
     }
     if (minutes > 10) {
-      return `Slow (+${minutes - 10}m)`;
+      return isTr ? `Gecikmeli (+${minutes - 10}dk)` : `Slow (+${minutes - 10}m)`;
     }
-    return 'On Track';
+    return isTr ? 'Zamanında' : 'On Track';
   }
 
   // Format time
   formatTime(date: Date): string {
-    return date.toLocaleTimeString('en-US', { 
+    const isTr = this.translationService.currentLang() === 'tr';
+    return date.toLocaleTimeString(isTr ? 'tr-TR' : 'en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
-      hour12: true 
+      hour12: !isTr
     });
   }
 
@@ -494,6 +496,6 @@ export class GuideHudComponent implements OnInit, OnDestroy {
   // Refresh incidents manually
   refreshIncidents(): void {
     this.incidentService.refreshIncidents();
-    this.toastService.info('Refreshing incidents...');
+    this.toastService.info(this.translationService.translate('common.refresh'));
   }
 }

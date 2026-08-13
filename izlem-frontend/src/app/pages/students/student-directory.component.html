@@ -26,7 +26,7 @@
                 class="st-81791e">{{ 'students.grade' | translate }}</span>
             <select [ngModel]="selectedGrade()" (ngModelChange)="onGradeChange($event)"
                 class="st-cac0d1">
-                <option value="">All Grades</option>
+                <option value="">{{ 'students.allGrades' | translate }}</option>
                 @for (grade of grades(); track grade) {
                 <option [value]="grade">{{ grade }}</option>
                 }
@@ -41,7 +41,7 @@
             <div
                 class="st-d152d9">
             </div>
-            <span class="st-e08419">Loading students...</span>
+            <span class="st-e08419">{{ 'students.loadingStudents' | translate }}</span>
         </div>
         } @else {
         <!-- Table Header -->
@@ -50,22 +50,22 @@
                 <tr class="st-dbce94">
                     <th
                         class="st-f1f26d">
-                        Initials</th>
+                        {{ 'students.thInitials' | translate }}</th>
                     <th
                         class="st-767fc2">
-                        Full Name</th>
+                        {{ 'students.thFullName' | translate }}</th>
                     <th
                         class="st-d6f036">
-                        Grade</th>
+                        {{ 'students.thGrade' | translate }}</th>
                     <th
                         class="st-89ecc1">
-                        Total Praises</th>
+                        {{ 'students.thTotalPraises' | translate }}</th>
                     <th
                         class="st-89ecc1">
-                        Total Incidents</th>
+                        {{ 'students.thTotalIncidents' | translate }}</th>
                     <th
                         class="st-eec7a0">
-                        Actions</th>
+                        {{ 'students.thActions' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -85,7 +85,7 @@
                     <td class="st-140fb6">
                         <div class="st-b16fcd">{{ student.firstName }} {{
                             student.lastName }}</div>
-                        <div class="st-b0ff31">ID: #{{ student.studentNo }}
+                        <div class="st-b0ff31">#{{ student.studentNo }}
                         </div>
                     </td>
                     <!-- Grade -->
@@ -133,7 +133,7 @@
                 @empty {
                 <tr>
                     <td colspan="6" class="st-24b251">
-                        No students found matching your filters.
+                        {{ 'students.noStudentsFound' | translate }}
                     </td>
                 </tr>
                 }
@@ -143,10 +143,7 @@
         <!-- Pagination -->
         <div
             class="st-9b8c60">
-            <span class="st-b45cb5">
-                Showing <strong>{{ (currentPage() - 1) * pageSize + 1 }}</strong> to
-                <strong>{{ Math.min(currentPage() * pageSize, filteredStudents().length) }}</strong> of
-                <strong>{{ filteredStudents().length }}</strong> students
+            <span class="st-b45cb5" [innerHTML]="'students.showingPagination' | translate:{ from: (currentPage() - 1) * pageSize + 1, to: Math.min(currentPage() * pageSize, filteredStudents().length), total: filteredStudents().length }">
             </span>
             <div class="st-f53f33">
                 <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
@@ -184,5 +181,3 @@
 @if (drawerOpen()) {
 <app-behavioral-drawer [profile]="selectedProfile()" [loading]="drawerLoading()" (close)="closeDrawer()" />
 }
-
-

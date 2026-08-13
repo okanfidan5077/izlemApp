@@ -8,3 +8,4 @@ export * from './category.service';
 export * from './toast.service';
 export * from './admin.service';
 export * from './parent.service';
+export * from './translation.service';

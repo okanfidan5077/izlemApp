@@ -40,8 +40,7 @@
                 </svg>
             </button>
             <span
-                class="st-b195dd">Behavioral
-                Intelligence</span>
+                class="st-b195dd">{{ 'drawer.behavioralIntelligence' | translate }}</span>
         </div>
 
         <!-- Student Info + Score -->
@@ -56,7 +55,7 @@
                 <div class="st-8679ee">{{ profile.firstName }} {{ profile.lastName
                     }}</div>
                 <div class="st-4b3432">
-                    Grade {{ profile.grade }}{{ profile.section ? '-' + profile.section : '' }} · Student ID: #{{
+                    {{ 'students.grade' | translate }} {{ profile.grade }}{{ profile.section ? '-' + profile.section : '' }} · #{{
                     profile.studentNo }}
                 </div>
             </div>
@@ -67,7 +66,7 @@
                     class="st-17582a">{{ profile.behaviorScore }}</div>
                 <div
                     class="st-c77011">
-                    Net Score</div>
+                    {{ 'drawer.netScore' | translate }}</div>
             </div>
         </div>
     </div>
@@ -80,7 +79,7 @@
         <div class="st-7afe40">
             <div
                 class="st-f5f7ab">
-                🚩 Required Actions ({{ pendingActions.length }})
+                🚩 {{ 'drawer.requiredActions' | translate }} ({{ pendingActions.length }})
             </div>
             @for (action of pendingActions; track action.id) {
             <div
@@ -88,11 +87,11 @@
                 <div class="st-c74ddc">
                     <span
                         class="st-27a44f">
-                        {{ action.actionType.replace('_', ' ') }}
+                        {{ getActionTypeLabel(action.actionType) }}
                     </span>
                     <span
                         class="st-ea14fd">
-                        PENDING
+                        {{ 'drawer.pending' | translate }}
                     </span>
                 </div>
                 <p class="st-0bcd84">
@@ -102,7 +101,7 @@
                     class="st-f0c817"
                     onmouseenter="this.style.background='#d97706'; this.style.transform='translateY(-1px)';"
                     onmouseleave="this.style.background='#f59e0b'; this.style.transform='translateY(0)';">
-                    ✏️ Resolve This Action
+                    ✏️ {{ 'drawer.resolveThisAction' | translate }}
                 </button>
             </div>
             }
@@ -113,16 +112,15 @@
         <div class="st-7afe40">
             <div class="st-2640a8">
                 <span
-                    class="st-6aa8fc">Behavioral
-                    Balance</span>
+                    class="st-6aa8fc">{{ 'drawer.behavioralBalance' | translate }}</span>
                 <div class="st-7f8dc0">
                     <div class="st-b3e546">
                         <div class="st-13cdf8"></div>
-                        <span class="st-03645a">Praise</span>
+                        <span class="st-03645a">{{ 'drawer.praise' | translate }}</span>
                     </div>
                     <div class="st-b3e546">
                         <div class="st-f1bae3"></div>
-                        <span class="st-03645a">Incident</span>
+                        <span class="st-03645a">{{ 'drawer.incident' | translate }}</span>
                     </div>
                 </div>
             </div>
@@ -146,7 +144,7 @@
                         class="st-3eb91e">
                         <span class="st-ee0e04">{{
                             profile.positivePercent }}%</span>
-                        <span class="st-e3c00c">Positive</span>
+                        <span class="st-e3c00c">{{ 'drawer.positive' | translate }}</span>
                     </div>
                 </div>
             </div>
@@ -156,10 +154,10 @@
         <div>
             <div
                 class="st-d56db7">
-                History Feed</div>
+                {{ 'drawer.historyFeed' | translate }}</div>
 
             @if (profile.historyFeed.length === 0) {
-            <div class="st-8cd605">No history recorded yet.</div>
+            <div class="st-8cd605">{{ 'drawer.noHistoryRecorded' | translate }}</div>
             }
 
             <div class="st-a1ffaf">
@@ -170,7 +168,7 @@
                         <!-- Resolved ✅ or normal dot -->
                         @if (entry.triggeredAction?.resolutionOutcome) {
                         <div class="st-fd1aef"
-                            [title]="'Resolved: ' + getOutcomeLabel($any(entry.triggeredAction).resolutionOutcome) + ' by ' + ($any(entry.triggeredAction).resolvedByName || 'Unknown')">
+                            [title]="('drawer.resolvedBy' | translate) + ': ' + getOutcomeLabel($any(entry.triggeredAction).resolutionOutcome) + ' — ' + ($any(entry.triggeredAction).resolvedByName || ('common.noData' | translate))">
                             ✅
                         </div>
                         } @else {
@@ -187,7 +185,7 @@
                             class="st-8f0a43">
                             <span [style.color]="entry.type === 'PRAISE' ? '#10b981' : '#94a3b8'"
                                 class="st-614513">
-                                {{ entry.type }}: {{ entry.categoryName }}
+                                {{ entry.type === 'PRAISE' ? ('drawer.praise' | translate) : ('drawer.incident' | translate) }}: {{ entry.categoryName }}
                             </span>
                             <span class="st-947447">{{ getRelativeTime(entry.dispatchedAt)
                                 }}</span>
@@ -205,7 +203,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
-                                <span class="st-03645a">Teacher: {{ entry.teacherName }}</span>
+                                <span class="st-03645a">{{ 'drawer.teacher' | translate }}: {{ entry.teacherName }}</span>
                             </div>
                             <!-- Resolution audit trail tooltip -->
                             @if (entry.triggeredAction?.resolutionOutcome) {
@@ -215,7 +213,7 @@
                                     {{ getOutcomeLabel($any(entry.triggeredAction).resolutionOutcome) }}
                                 </span>
                                 <span class="st-046832">
-                                    — {{ $any(entry.triggeredAction).resolvedByName || 'Unknown' }}
+                                    — {{ $any(entry.triggeredAction).resolvedByName || '' }}
                                 </span>
                             </div>
                             }
@@ -236,7 +234,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            Incident
+            {{ 'drawer.recordIncident' | translate }}
         </button>
         <button (click)="openRecordModal('PRAISE')"
             class="st-3a2a43"
@@ -246,7 +244,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Praise
+            {{ 'drawer.recordPraise' | translate }}
         </button>
     </div>
     }
@@ -261,7 +259,7 @@
         <!-- Modal Header -->
         <div class="st-d4babb">
             <div class="st-3fd07a">
-                <h3 class="st-2ff475">Resolve Action</h3>
+                <h3 class="st-2ff475">{{ 'drawer.resolveAction' | translate }}</h3>
                 <button (click)="closeResolveModal()"
                     class="st-ca4c4e">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +271,7 @@
             <div class="st-820d69">
                 <div
                     class="st-c09966">
-                    {{ selectedAction.actionType.replace('_', ' ') }}
+                    {{ getActionTypeLabel(selectedAction.actionType) }}
                 </div>
                 <div class="st-e92e11">
                     {{ selectedAction.description }} · {{ selectedAction.categoryName }}
@@ -287,12 +285,12 @@
             <label class="st-cbb2b4">
                 <span
                     class="st-aa06bc">
-                    Resolution Outcome
+                    {{ 'drawer.resolutionOutcome' | translate }}
                 </span>
                 <select [(ngModel)]="resolutionOutcome"
                     class="st-7da16f">
                     @for (opt of outcomeOptions; track opt.value) {
-                    <option [value]="opt.value">{{ opt.icon }} {{ opt.label }}</option>
+                    <option [value]="opt.value">{{ opt.icon }} {{ opt.key | translate }}</option>
                     }
                 </select>
             </label>
@@ -301,9 +299,9 @@
             <label class="st-5ab1f2">
                 <span
                     class="st-aa06bc">
-                    Resolution Note *
+                    {{ 'drawer.resolutionNote' | translate }}
                 </span>
-                <textarea [(ngModel)]="resolutionNote" placeholder="Describe the outcome of this meeting/action..."
+                <textarea [(ngModel)]="resolutionNote" [placeholder]="'drawer.resolutionNotePlaceholder' | translate"
                     rows="4"
                     class="st-2261fc"></textarea>
             </label>
@@ -312,16 +310,16 @@
             <div class="st-618605">
                 <button (click)="closeResolveModal()"
                     class="st-88b6d2">
-                    Cancel
+                    {{ 'common.cancel' | translate }}
                 </button>
                 <button (click)="submitResolution()" [disabled]="resolving || !resolutionNote.trim()"
                     [style.opacity]="resolving || !resolutionNote.trim() ? '0.5' : '1'"
                     class="st-eaf883"
                     onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">
                     @if (resolving) {
-                    Resolving...
+                    {{ 'drawer.resolving' | translate }}
                     } @else {
-                    ✅ Resolve
+                    ✅ {{ 'drawer.resolve' | translate }}
                     }
                 </button>
             </div>
@@ -338,8 +336,7 @@
         class="st-1b9bb0">
         <div class="st-01c22c">
             <div class="st-3fd07a">
-                <h3 class="st-2ff475">Record {{ recordType === 'PRAISE'
-                    ? 'Praise' : 'Incident' }}</h3>
+                <h3 class="st-2ff475">{{ 'drawer.recordTypeTitle' | translate:{ type: (recordType === 'PRAISE' ? ('drawer.praise' | translate) : ('drawer.incident' | translate)) } }}</h3>
                 <button (click)="closeRecordModal()"
                     class="st-ca4c4e">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,7 +349,7 @@
         <div class="st-b2fca5">
             <label class="st-cbb2b4">
                 <span
-                    class="st-e3d7b1">Category</span>
+                    class="st-e3d7b1">{{ 'drawer.category' | translate }}</span>
                 <select [(ngModel)]="selectedCategoryId"
                     class="st-002492">
                     @for (cat of categories; track cat.id) {
@@ -362,23 +359,20 @@
             </label>
             <label class="st-5ab1f2">
                 <span
-                    class="st-e3d7b1">Description
-                    (Optional)</span>
+                    class="st-e3d7b1">{{ 'drawer.descriptionOptional' | translate }}</span>
                 <textarea [(ngModel)]="recordDescription" rows="3"
                     class="st-abfc20"></textarea>
             </label>
             <div class="st-618605">
                 <button (click)="closeRecordModal()"
-                    class="st-88b6d2">Cancel</button>
+                    class="st-88b6d2">{{ 'common.cancel' | translate }}</button>
                 <button (click)="submitBehavior()" [disabled]="isSubmitting || !selectedCategoryId"
                     [style.background]="recordType === 'PRAISE' ? '#10b981' : '#ef4444'"
                     class="st-792ef3">
-                    {{ isSubmitting ? 'Recording...' : 'Record' }}
+                    {{ isSubmitting ? ('drawer.recording' | translate) : ('drawer.record' | translate) }}
                 </button>
             </div>
         </div>
     </div>
 </div>
 }
-
-
