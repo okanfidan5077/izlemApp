@@ -12,6 +12,8 @@ import { ConfigurationModule } from './configuration';
 import { AdminModule } from './admin/admin.module';
 import { ParentModule } from './parent/parent.module';
 import { ChatModule } from './chat/chat.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import {
   GlobalResponseInterceptor,
   TenantInterceptor,
@@ -67,7 +69,9 @@ import { GlobalExceptionFilter } from './common/filters';
       inject: [ConfigService],
     }),
   ],
+  controllers: [AppController],
   providers: [
+    AppService,
     // Global exception filter for standardized error responses
     {
       provide: APP_FILTER,
