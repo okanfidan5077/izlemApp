@@ -146,6 +146,22 @@ import { TranslatePipe } from '../../core/pipes/translate.pipe';
           </div>
         </div>
 
+        <!-- Working Hours Notice Bar -->
+        @if (isParent()) {
+        <div class="working-hours-banner">
+          <div class="banner-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="banner-content">
+            <span class="banner-title">{{ 'chat.workingHoursTitle' | translate }}:</span>
+            <span class="banner-text">{{ 'chat.workingHoursNotice' | translate }}</span>
+          </div>
+        </div>
+        }
+
         <!-- Messages Body -->
         <div class="messages-body" #messagesBody>
           @for (msg of chatService.activeMessages(); track msg.id) {
@@ -572,6 +588,42 @@ import { TranslatePipe } from '../../core/pipes/translate.pipe';
     .status-dot.online {
       background: #10b981;
       box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    /* ──── Working Hours Banner ──── */
+    .working-hours-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #fffbeb;
+      border-bottom: 1px solid #fde68a;
+      color: #78350f;
+      font-size: 12.5px;
+      line-height: 1.45;
+      flex-shrink: 0;
+    }
+
+    .banner-icon {
+      color: #d97706;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      margin-top: 1px;
+    }
+
+    .banner-content {
+      flex: 1;
+    }
+
+    .banner-title {
+      font-weight: 700;
+      color: #92400e;
+      margin-right: 5px;
+    }
+
+    .banner-text {
+      color: #78350f;
     }
 
     /* ──── Messages Body ──── */
